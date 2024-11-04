@@ -277,11 +277,11 @@
 \tikz [remember picture, overlay] %
 \node [shift={(-3cm,5cm)}] at (current page.south east) %
 [anchor=south east] %
-{\includegraphics[width=4cm]{img/logo_se}};
+{\includegraphics[width=4cm]{infographics_img_table_fig/logo_se}};
 \tikz [remember picture, overlay] %
 \node [shift={(-1cm,-1cm)}] at (current page.north east) %
 [anchor=north east] %
-{\includegraphics[width=6cm]{img/logo_uni}};
+{\includegraphics[width=6cm]{infographics_img_table_fig/logo_uni}};
 
   \end{titlepage}
 }%
