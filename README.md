@@ -1,4 +1,4 @@
-# vrsys thesis template
+# rsys thesis template
 
 This is a latex template for the Software Engineering group at Bauhaus University Weimar.
 
