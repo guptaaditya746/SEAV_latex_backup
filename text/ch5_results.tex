@@ -1,0 +1,145 @@
+\documentclass[english,project]{buwthesis}
+\begin{document}
+\chapter{Results}
+
+In this section, we present the results obtained from the various tests and experiments conducted on the system. The system performance was evaluated across several key areas, including basic motion control, sensor integration, localization and path planning.
+
+\subsection{Basic Motion and Steering Control}
+
+The basic motion and steering control was tested using velocity commands sent through the command line interface. We validated the responsiveness of the motors and steering mechanism, ensuring that the vehicle could move forward, reverse, and turn accurately. The system initially operated in manual control mode, through keyboard and joystick and the transition to autonomous control is still ongoing.
+
+%%should i describe about the node communication for running this car.
+%% add simulatantoeus photo of fwd, left and right photo
+% \begin{figure}[ht]
+%     \centering
+%     \includegraphics[width=0.7\textwidth]{motion_control.png}  % Replace with actual image
+%     \caption{Test Setup for Basic Motion and Steering Control}
+%     \label{fig:motion_control}
+% \end{figure}
+
+%% what kind of image can i add here ?
+
+\subsection{Sensor Integration and Localization}
+Sensor data integration is a critical component for achieving accurate localization and mapping in mobile robotics. In the present setup, localization is achieved by fusing data from an Inertial Measurement Unit (IMU) and a color-based distance sensor. These sensors work in tandem to estimate the robot\textquotesingle s position and orientation, enabling continuous publishing of the odometry (odom) information through a custom ROS 2 node.
+
+The IMU provides angular velocity (yaw rate) data, which is integrated over time to estimate the robot\textquotesingle s heading or orientation ($\theta$). Simultaneously, the color sensor measures the distance traveled, which serves as an alternative to traditional wheel encoders. This distance information is used to estimate the robot\textquotesingle s position incrementally along the current heading.
+
+The sensor fusion in this setup is implemented through deterministic dead reckoning. The angular velocity from the IMU is used to compute the change in heading, and this heading is combined with the latest distance reading to calculate updates to the robot\textquotesingle s $x$ and $y$ positions. This fusion process is executed at a fixed frequency (10 Hz), and the resulting pose and velocity estimates are published using the $nav_msgs/Odometry message$ type on the $/odom$ topic. At the same time, a tf2 transform between the odom and $base_link$ frames is broadcast to maintain frame consistency.
+
+While this approach does not yet incorporate probabilistic filters such as an Extended Kalman Filter (EKF), it provides a lightweight and responsive method for estimating odometry in simple environments. The fusion node is also designed with time-critical constraints in mind, using a rolling TF2 buffer (0.1 seconds) to limit transform history and ensure fresh data publication. The implementation takes care to flush outdated TF data and uses reliable QoS settings to guarantee that odometry and transform messages are delivered accurately.
+
+
+
+
+% \begin{figure}[ht]
+%     \centering
+%     \includegraphics[width=0.7\textwidth]{sensor_integration.png}  % Replace with actual image
+%     \caption{LIDAR, IMU, and Color Sensor Data Integration}
+%     \label{fig:sensor_integration}
+% \end{figure}
+
+\subsection{SLAM and Mapping}
+
+SLAM was successfully implemented using IMU and LIDAR in a simulated environment. The vehicle was able to map its environment and localize itself within the map. However, the integration of dynamic obstacles for real-time mapping is still pending, and this is expected to improve the overall navigation system's performance in more complex environments.
+    
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{img/result/slam.drawio.png}  % Replace with actual image
+    \caption{Sensor fusion and SLAM pipeline. IMU and color sensor data are fused to generate odometry, which, together with Lidar data, is used by the SLAM node to compute both a map and the robot's estimated position.}
+    \label{fig:slam_pipeline}
+\end{figure}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.7\textwidth]{img/result/slam_before_imu.jpeg}  % Replace with actual image
+    \caption{SLAM map}
+    \label{fig:slam map generated before imu calibration}
+\end{figure}
+
+\subsection{Path Planning and Navigation}
+
+The goal-setting and navigation functionality using Nav2 was successfully tested with mock maps. The system could generate feasible paths for the robot to navigate from a starting point to a destination. Further testing with real sensor data and dynamic environments is required to refine the system\textquotesingle s performance.
+
+In terms of dynamic path planning and obstacle avoidance, the Gazebo simulation allowed us to test the basic functionality. However, the real-time updates and the ability to adapt to sudden changes in the environment are still areas for improvement.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.7\textwidth]{img/result/Editor _ Mermaid Chart-2025-03-23-223140.png} 
+    \caption{ROS 2 navigation pipeline. Sensor inputs are fused to estimate robot odometry. Lidar and fused odometry are used by SLAM and localization modules to estimate position. The navigation stack uses the estimated pose and goal input to generate global plans and local velocity commands for actuation.}
+
+    \label{fig:Nav2 data flow}
+\end{figure}
+% \subsection{Autonomous Decision-Making}
+
+% A manual control system was implemented to allow basic vehicle movements, but the autonomous decision-making algorithms are still in the development stage. Tests have been initiated to integrate these algorithms, which will allow the system to make real-time decisions based on the environment.
+
+
+
+% \subsection{Camera Integration for Object Recognition}
+
+% The integration of the camera with the YOLO object recognition model has shown promising results in controlled environments. However, further testing in real-world conditions is necessary to improve the system's ability to handle different lighting and environmental conditions.
+
+\subsection{Calibration Results}
+To ensure accurate sensor measurements and system responses, a comprehensive calibration process was conducted. The key calibration results are summarized below:
+\begin{itemize}
+    \item LIDAR Calibration: After calibration, distance measurement error was reduced to $\pm 2 \text{cm}$.
+    \item IMU Calibration: Bias correction significantly improved orientation estimation.
+    \subsubsection{IMU Calibration}
+Accurate IMU calibration is essential for improving orientation estimation and reducing sensor drift. The calibration was performed using the Ferraris calibration method, as described in \cite{ferraris_calibration}, with the `imucal` Python library \cite{imucal_docs}.
+%https://imucal.readthedocs.io/en/latest/guides/ferraris_guide.html
+\paragraph{Calibration Procedure}
+The Ferraris calibration process involves collecting IMU measurements while performing controlled multi-axis rotations. This allows for accurate estimation of:
+\begin{itemize}
+    \item Bias in accelerometer and gyroscope readings.
+    \item Scale factor and misalignment corrections.
+    \item Soft-iron and hard-iron magnetometer distortions (if applicable).
+\end{itemize}
+
+The raw IMU data was logged during the calibration procedure and then processed using `imucal`. The calibration parameters were estimated and applied to the sensor data to correct systematic errors.
+
+\paragraph{Results and Improvements}
+After applying the calibration parameters, the following improvements were observed:
+\begin{itemize}
+    \item Bias drift in the gyroscope was significantly reduced, leading to more stable orientation estimation over time.
+    \item Accelerometer readings exhibited improved linearity, ensuring better state estimation in motion.
+    \item The overall sensor fusion accuracy improved when integrating the corrected IMU data with other localization sources.
+\end{itemize}
+
+Figure~\ref{fig:imu_calibration} illustrates the effects of calibration on IMU measurements, showing the raw data versus corrected data. The improved consistency in sensor readings is evident.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{img/result/imu_before_calib.png}
+    \caption{imu\_calibration\_before}
+    \label{fig:imu_calibration_before}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{img/result/imu_after_calib.png}
+    \caption{imu\_after\_calib.}
+    \label{fig:imu_calibration}
+\end{figure}
+These calibration steps have significantly enhanced the accuracy of orientation estimation, contributing to improved sensor fusion performance in the overall system.
+
+
+    \item Odometry Calibration: Encoder-based odometry drift was reduced from 15\% to 5\%.
+
+    %% ask fazil about odom
+    
+    \item Color Sensor Calibration: Improved accuracy in detecting lane markers under varying lighting conditions.
+
+    % highlight the changes happedn in color sensor 1. width of strips, 2. reduction of speed of vehicles as it was giving out reading in uneven frequency.
+    
+    \item Motor Controller Calibration: PWM signal tuning optimized motor speed control, improving motion smoothness.
+\end{itemize}
+
+\subsection{Challenges and Future Work}
+
+Several challenges remain, particularly with dynamic obstacle avoidance, sensor fusion, and real-time data processing. These areas will be addressed in the next phase of development, where further optimization and real-world testing will be carried out. The integration of real-time feedback and further fine-tuning of the decision-making algorithms are key tasks for the successful deployment of the autonomous vehicle.
+
+\subsection{Summary of Results}
+
+The system has shown significant progress in its ability to perform basic navigation tasks, integrate sensors, and execute basic decision-making algorithms. However, full autonomous operation is still a work in progress. The upcoming tasks focus on refining the autonomous navigation, integrating real-time decision-making, and optimizing the system for real-world deployment.
+\end{document}

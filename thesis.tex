@@ -4,22 +4,38 @@
 %
 % Values
 % ------
-\ThesisSetTitle{Project Title}
-\ThesisSetSubtitle{Semester} % optional
+\ThesisSetTitle{Software Engineering for Autonomous Vehicles}
+\ThesisSetSubtitle{WiSe2024/25} % optional
 \ThesisSetKeywords{These, Are, My keywords} % only for PDF meta attributes
 
 % list authors with name and matrikel number
-\ThesisSetAuthor{Name, ID}
+\ThesisSetAuthor{Adarsh Suresh Subbalakshmy (124625), %
+Aditya Kumar Gupta (125904), %
+Devang Gupta (126828), %
+Fazil Ashraf (126725), %
+Vinay Sampath Kumar Vudumula (126812)
+}
+% \ThesisSetAuthor{Adarsh Suresh Subbalakshmy (124625)\\
+% Aditya Kumar Gupta (125904)\\
+% Devang Gupta (126828)\\
+% Fazil Ashraf (126725)\\
+% Vinay Sampath Kumar Vudumula (126812)
+% }
+
 
 \ThesisSetProgramme{Digital Engineering}
 \ThesisSetSupervisors{Prof.\ Dr.\ Jan Oliver Ringert, Soaibuzzaman}
 
-\ThesisSetSubmissionDate{31}{2}{2022}
+\ThesisSetSubmissionDate{31}{3}{2025}
 
 
-\usepackage{libertine}
+\usepackage{standalone}
+
+\usepackage{minted}
+\usepackage{libertine}  
 \usepackage{libertinust1math}
 \usepackage{csquotes}
+\usepackage{longtable}
 \usepackage[
   backend=biber,
   bibencoding=utf8,
@@ -27,13 +43,13 @@
   hyperref=true,
   isbn=false,
   maxcitenames=3,
-  style=alphabetic,
-  citestyle=alphabetic,
+  style=numeric,
+  citestyle=numeric,
   sorting=ynt,
 ]{biblatex}
 \addbibresource{literature.bib}
 \usepackage{booktabs}
-
+\usepackage{float}
 \usepackage{lipsum} % only used for blind text, can be removed in production
 
 %
@@ -68,7 +84,6 @@
 \theoremstyle{shypothesisstyle}
 \newtheorem{shypothesis}{H}[hypothesis]
 \renewcommand*{\theshypothesis}{\arabic{hypothesis}\alph{shypothesis}}
-
 \usepackage[
   colorlinks=false,
   pdfborder={0 0 0},
@@ -80,11 +95,9 @@
   pdfstartview={Fit},
 ]{hyperref}
 \urlstyle{same}
-
 \usepackage{cleveref} % must be loaded after hyperref
 \crefformat{hypothesis}{\textbf{H\textsubscript{#1}}}
 \crefformat{shypothesis}{\textbf{\textit{H\textsubscript{#1}}}}
-
 \begin{document}
 \input{text/main.tex}
 \end{document}

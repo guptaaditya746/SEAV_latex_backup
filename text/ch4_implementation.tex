@@ -1,0 +1,551 @@
+\documentclass[english,project]{buwthesis}
+\begin{document}
+\chapter{Implementation}
+
+This chapter describes the implementation process of the autonomous vehicle system, including hardware integration, software setup, and control algorithm. 
+
+\section{Hardware Setup}
+
+The hardware /setup involves the integration of several components to create the autonomous vehicle system. 
+These components include the car (with pre-installed motor controller, circuit for remote control driving), Raspberry Pi 4,
+Arduino Nano, LIDAR A1, 2 color sensors (TCS 34725), 1 motor driver (ZK BM1), 1 IMU sensor (MPU6050), a magnetometer (AS5600), and auxiliary components to build a robust hardware setup for testing. 
+The auxiliary components include 2 breadboards, custom 3D-printed plates and LIDAR base, 11V LIPO battery, double-notch wires, external powered USB, rainbow wires, USB cables, simple strand wires, multimeter, LIPO and DC battery chargers, and LEGO components, glue gun, power bank. 
+The listed items are exhaustive in order to provide clarity to reader for building a standalone system similar to the current configuration.
+
+
+\subsection{Car Setup}
+The vehicle is a compact car with the specifications descibred in the description of  Figure~\ref{fig:car}.
+
+
+\sloppy
+The car primary function is to be controlled through ROS2 nodes, enabling autonomous navigation, obstacle avoidance, 
+and real-time sensor data response. The initial and final coordinates are published in order for car to locate 
+its present location and for Nav2 stack localisation and path planning.
+The vehicle has been modified to integrate sensors and computing units. 
+More details on the custom car can be found in the manufacturer documentation \cite{BBH011_manual}
+.
+
+\subsubsection{Motor Control System}
+
+\subsubsection{Steering Mechanism}
+\sloppy
+Unlike traditional toy autonomous vehicles that use stepper motors for steering, current vehicle in study uses a DC motor to control the front wheels. This introduces difficulty in precise angular positioning, leading to a hard steering effect. To mitigate this, the system initally had $-10.5^\circ$ to $+10.5^\circ$ range of motion with 5 steps, which later on converted to steering positions with 3 steps: extreme left, center, and extreme right.
+
+
+\subsubsection{Power Distribution and Battery Management}
+
+Power is supplied through:
+\begin{itemize}
+    \item A 12V 4.5 Ah DC battery for driving the motors
+    \item An 11V LIPO battery for powering the computing and sensor units
+    \item Optionally, a wall socket adapter can replace the LIPO battery for testing
+    \item A power bank for exernal USB port in absence of wall socket.
+\end{itemize}
+
+The LIPO battery faces challenges in supplying sufficient power for remote operations. Consquently, for the last of project work, wall socket is preferred over LIPO.
+
+\subsubsection{Sensor Placement and Data Fusion}
+
+To achieve accurate navigation and obstacle avoidance, sensor placement is optimized:
+\begin{itemize}
+    \item LIDAR A1: Mounted at the rear for a stable 2D scan of the surroundings. The height is adjusted in order to prevent from any vision obstacle created by sensor installed on the car.
+    \item IMU (MPU6050): Placed near the vehicle center to capture motion and orientation. The IMU sensor is oriented such that its $+x$ axis, marked on the device, is aligned parallel to the direction of the car's forward motion.
+
+    \item Color Sensors (TCS 34725): One sensor positioned near a rear wheel for speed or distance estimation, the other near the front for steering feedback. The placement of color sensor on the steering wheel involves more work, which is explained ..... %% add vinays content here.
+    \item Magnetometer: It is used as an alternative for the measurement of why do we need to change from color to magentometer for measurement of steering wheel. Enhances orientation data, improving localization accuracy, placed on the steering wheel, however due to vertical movement of steering rod , distance b/w magnet and sensor is changing which causes noise in the steering data . This issue is still in To-Do list, more of it in discussion related to measurement of steering angle.
+\end{itemize}
+
+ \textbf{Problem 4:} The color sensor for steering feedback did not provide reliable data, requiring alternative placement or another sensor type.
+
+\subsubsection{Chassis and Frame Design}
+
+The car chassis balances weight distribution while accommodating all components efficiently. The frame is constructed from lightweight yet durable materials to maintain structural integrity. The compact size ensures maneuverability, which is crucial for indoor navigation and obstacle courses.
+
+
+\subsubsection{Hardware to Software Communication using ROS2}
+
+The data\textquotesingle s of system is structured into the following ROS 2 nodes:
+\begin{itemize}
+    \item /cmd\_vel: Publishes velocity commands.
+    \item /scan: LIDAR publishes environmental scans.
+    \item /imu: Publishes IMU data.
+    \item /odom: Computes vehicle odometry. There is a custom node which combines the data of imu and color sensor to form odom.
+\end{itemize}
+
+This modular structure ensures flexibility and adaptability for future improvements.
+
+\subsubsection{Future Enhancements and Reflection}
+
+Planned improvements include:
+\begin{itemize}
+    \item Better Steering Control: Replacing the DC motor with a stepper motor.
+    \item Power Optimization: Integrating more efficient battery management systems.
+    \item Enhanced Navigation: Adding vision-based perception (e.g., cameras for SLAM and lane detection).
+    \item Obstacle Avoidance Upgrades: Implementing ultrasonic sensors for close-range detection.
+
+
+    %% changing rp4 to rp5.
+    %% change steering to servo/stepper motor, which not involve any exernal sensor.
+\end{itemize}
+
+These enhancements will contribute to the long-term goal of making the vehicle more autonomous and robust in real-world applications.
+
+\textbf{Note:} Open issues related to steering, battery limitations, and sensor feedback are discussed in section of Troubleshooting section.
+
+%% if time and interest persists then i will write about the OPEN ISSUES.
+
+
+\subsection{Raspberry Pi 4 Integration}
+The Raspberry Pi 4 Model B serves as the main controller of the vehicle. It is equipped with the specifications discussed in the section of hardware details of Raspberry Pi 4.%% add cross-reference of rp4 section . 
+ This system handles ROS2 communication, sensor integration, and motor control. The Raspberry Pi is responsible for reading data from the sensors (LIDAR, IMU, and color sensor) and sending control commands to the motor driver through arduino-nano.
+
+
+\subsection{Diagrams for Wiring and Component Connections}
+Detailed wiring diagrams are crucial for understanding how each component is interconnected within the system. These diagrams will include all connections related to power, data and control signals.
+
+% Placeholder for the diagram
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\textwidth]{img/implement/Untitled Diagram-Page-1.jpg}
+    \caption{Wiring Diagram of the Autonomous Vehicle System}
+    \label{fig:wiring_diagram}
+\end{figure}
+
+
+\subsection{Photos of the Physical Setup}
+Photos of the entire setup and close-ups of important components provide a visual understanding of the physical configuration of the autonomous vehicle.
+% Placeholder for photos
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\textwidth]{img/implement/WhatsApp Image 2025-03-08 at 7.44.38 PM.jpeg}
+    \caption{Overall Setup of the Autonomous Vehicle}
+    \label{fig:overall_setup}
+\end{figure}
+
+\subsection{Sensor and Motor Placement Diagrams}
+Diagrams showing the placement of sensors and motors on the vehicle help in understanding their operational context and field of view.
+% % Placeholder for sensor placement diagram
+% \begin{figure}[h!]
+%     \centering
+%     \includegraphics[width=\textwidth]{path/to/sensor_placement_diagram.png}
+%     \caption{Sensor and Motor Placement on the Vehicle}
+%     \label{fig:sensor_placement}
+% \end{figure}
+% %% check ppt for this feature , take top view photo of car, use ppt feature to convert into skeleton form.
+
+
+\subsection{Block Diagram for System Architecture}
+A block diagram illustrating how various components such as sensors, processing units, and actuators are interconnected within the system.
+% Placeholder for the block diagram
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\textwidth]{img/implement/high level architecture.png}
+    \caption{System Architecture Block Diagram}
+    \label{fig:system_architecture}
+\end{figure}
+% check draw.io page -3
+
+\subsection{Power Consumption Analysis}
+A detailed analysis of the power consumption of each component is essential to ensure the system operates efficiently without exceeding power supply capabilities. %% how to measure power consumption
+% Placeholder for power consumption table
+\begin{verbatim}
+    | Component          | Power Consumption | Source     |
+    |--------------------|-------------------|------------|
+    | Raspberry Pi 4     | 5W                | LIPO       |
+    | Arduino Nano       | 2W                | Power Bank |
+    | LIDAR              | 1.5W            | Power Bank |
+    | DC Motor Driver    | 15W               | DC battery |
+    | Total              | 23.5W             |            |
+\end{verbatim}
+
+
+\subsection{Arduino Nano Integration}
+\sloppy
+An Arduino Nano is used to interface with the motor driver and manage motor control. The Arduino Nano is programmed to read PWM signals from the Raspberry Pi and control the speed and direction of the motors. The connection between the Raspberry Pi and the Arduino is done via a USB cable, and the Arduino is programmed to read the PWM signals and convert them into motor commands.
+
+
+\subsection{Communication Protocols}
+
+The hardware architecture relies on various communication protocols to ensure efficient data exchange between the Raspberry Pi, Arduino Nano, and the sensors. In this project, two primary interfaces are used: \textbf{I\textsuperscript{2}C} and \textbf{Serial UART}. The choice of protocol depends on factors such as available pins, data rate requirements, and ease of integration within the ROS2 framework.
+
+\subsubsection{I\textsuperscript{2}C Communication}
+
+I\textsuperscript{2}C (Inter-Integrated Circuit) is used for low-speed, short-distance, intra-board communication. It is a two-wire interface consisting of:
+\begin{itemize}
+    \item \textbf{SDA (Serial Data Line)}
+    \item \textbf{SCL (Serial Clock Line)}
+\end{itemize}
+
+In this setup:
+\begin{itemize}
+    \item \textbf{IMU Sensor (GY-521 / MPU6050)}: Connected to the Raspberry Pi via I\textsuperscript{2}C for continuous accelerometer and gyroscope data.
+    \item \textbf{Color Sensors (TCS34725)}: Operate over I\textsuperscript{2}C to send RGB and clear light intensity values. One sensor is used for measuring wheel speed (rear wheel), while the other attempts to provide steering feedback (although this remains problematic as noted in \textbf{Problem 4}).
+    \item \textbf{Magnetometer (if applicable)}: Typically also integrated over I\textsuperscript{2}C to provide orientation data. Proper calibration and filtering are crucial for reliable measurements.
+\end{itemize}
+
+The Raspberry Pi 4\textquotesingle s I\textsuperscript{2}C pins (GPIO 2 for SDA and GPIO 3 for SCL by default) handle data traffic. Pull-up resistors are required on the I\textsuperscript{2}C lines (often provided on breakout boards). Each device on the bus has a unique address, and the Raspberry Pi acts as the master.
+
+\subsubsection{Serial (UART) Communication}
+
+Serial UART interfaces may be used for devices or debugging tools where a straightforward, point-to-point link is sufficient. Examples include:
+\begin{itemize}
+    \item \textbf{Arduino Nano Connection}: In some configurations, the Arduino Nano is connected to the Raspberry Pi via a USB-to-Serial interface. This allows the Raspberry Pi to send motor commands (e.g., PWM values) and receive any status messages from the Arduino.
+    \item \textbf{Debugging Tools}: Occasionally, a USB-to-UART cable may be used for real-time debugging of sensor data or motor driver behavior.
+\end{itemize}
+
+While many sensors can use UART (e.g., some variants of GPS modules or other external boards), the core set of sensors in this project primarily rely on I\textsuperscript{2}C.
+
+\subsubsection{Data Flow within ROS2}
+
+Once the sensor data is received on the Raspberry Pi, it is published to the corresponding ROS2 topics. Key topic examples include:
+\begin{itemize}
+    \item \textbf{/imu} for accelerometer and gyroscope data from the MPU6050.
+    \item \textbf{/steering\_sensor} or equivalent for color-sensor-based steering feedback.
+    \item \textbf{/lidar\_scan} for the RPLIDAR A1 data (if using serial connection directly from LIDAR to the Pi).
+\end{itemize}
+
+Meanwhile, commands destined for the Arduino (such as motor speed control) flow from a ROS2 node on the Pi through the USB-to-Serial connection. This modular communication strategy keeps sensor processing and motor actuation neatly separated, and the ROS2 topics act as a flexible backbone for the exchange of information across the system.
+
+% \subsubsection{Future Considerations}
+% \begin{itemize}
+%     \item \textbf{Network Communication}: Some modules (e.g., cameras or advanced LiDARs) might communicate over Ethernet or Wi-Fi, especially if more intensive data streams or remote monitoring are required.
+%     \item \textbf{Protocol Optimization}: Tuning I\textsuperscript{2}C clock speed, ensuring minimal bus length, and reducing electrical noise can improve reliability. Proper cable management and shielding become more important as speed or distance increases.
+% \end{itemize}
+
+This layered approach, combining I\textsuperscript{2}C for sensor data acquisition and Serial for motor control and debugging, provides a balance between simplicity, scalability, and cost-effectiveness for an autonomous vehicle of this scale.
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\textwidth]{img/implement/Circuit Diagram(1).png}
+    \caption{Overview diagram of hardware and communication}
+    \label{fig:system_architecture}
+\end{figure}
+\subsection{Sensor Integration}
+The system uses several sensors to provide data for navigation and control:
+\begin{itemize}
+    \item RPLIDAR A1: A 360-degree laser scanner used for environment mapping and localization.
+    \item Color Sensor (TCS34725): This sensor provides RGB and clear light sensing, useful for detecting lines or specific objects for the vehicle's navigation.
+    \item IMU Sensor (GY-521): The GY-521 sensor, based on the MPU6050, provides accelerometer and gyroscope data to estimate the vehicle's orientation and velocity.
+\end{itemize}
+These sensors are connected to the Raspberry Pi and communicate via I2C or serial communication protocols. 
+
+\section{Software Setup}
+The software stack is based on ROS2 Humble and is structured to ensure efficient communication between nodes and real-time control. The ROS2 setup involves several packages for sensor integration, control, and navigation.
+%% add a digarm of nodes here and software architecture, topics in which msg is published, use something from rqt
+\subsection{ROS2 Nodes}
+The main nodes in the system include:
+\begin{itemize}
+    \item Sensor Nodes: These nodes handle data collection from the LIDAR, IMU, and color sensor. They publish the sensor data to relevant topics (e.g., `/scan`, `/imu/data`).
+    \item Motor Control Node: This node receives velocity and steering commands and translates them into PWM signals for the motor driver via the Arduino.
+    \item Navigation Nodes: These nodes are responsible for path planning and obstacle avoidance using the Nav2 stack.
+\end{itemize}
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\textwidth]{img/implement/ros2_communication_flow.png}
+    \caption{Simplified Node Communication Schematic}
+    \label{fig:system_architecture}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\textwidth]{img/implement/layers and workspace.drawio.png}
+    \caption{Workspace overview of pkgs built for the toycar}
+    \label{fig:system_architecture}
+\end{figure}
+\subsection{Nav2 Setup}
+Nav2 (Navigation 2) is configured to handle both global and local path planning. The main components of Nav2 include:
+\begin{itemize}
+    \item Global Planner: The global planner is responsible for planning the overall path from the start point to the goal. In this implementation, the A* algorithm is used for global path planning.
+    \item Local Planner: The local planner adjusts the vehicle's trajectory in real-time, avoiding obstacles. The DWB (Dynamic Window Approach) planner is used for local path planning.
+    \item Localization: The system uses the LIDAR and IMU data for localization, integrating these sensors with the AMCL (Adaptive Monte Carlo Localization) package to estimate the vehicle's position on the map.
+    \item Costmaps: The global and local planners are informed by the costmaps, which represent the environment and obstacles. These costmaps are updated in real-time based on the LIDAR and IMU data.
+\end{itemize}
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\textwidth]{img/implement/amcl.drawio.png}
+    \caption{AMCL Node}
+    \label{fig:system_architecture}
+\end{figure}
+
+\subsection{Controller}
+
+
+\subsubsection{ros2 control}
+
+\subsubsection{PID Controller}
+
+\subsection{System Integration and Testing}
+The system was integrated and tested in a controlled environment. The following steps were followed:
+\begin{itemize}
+    \item Hardware Integration: The Raspberry Pi, Arduino, motor driver, and sensors were connected and tested individually to ensure proper functionality.
+    \item Software Integration: The ROS2 nodes were integrated to handle communication between components. Sensor data was published to topics, and motor control commands were sent to the motor driver.
+    % \item **System Testing**: The system was tested in an indoor environment with a predefined path. The vehicle was able to follow the path and avoid obstacles based on the sensor feedback and the control algorithms.
+
+    %% disucss for system testing topic for pre-defined path with Fazil
+\end{itemize}
+Testing was done with various scenarios to evaluate the system's robustness and performance in dynamic environments.
+
+\subsection{Simulation and Testing in Gazebo}
+Gazebo was used as the primary simulation environment to test and validate the software components before deploying them on the real autonomous vehicle. Simulation allows for controlled experiments, reducing the risk of hardware damage and enabling fine-tuning of algorithms.
+
+\subsubsection{Vehicle Model in Gazebo}
+To simulate the autonomous vehicle, a URDF (Unified Robot Description Format) and Xacro files were created. These files define the physical properties, kinematics, and dynamics of the car, including:
+\begin{itemize}
+    \item Wheelbase and track width dimensions to match the real vehicle.
+    \item Definition of inertial properties for accurate physics simulation.
+    \item Joint configurations for steering and rear-wheel drive motion.
+    \item Sensor mount points for LIDAR, IMU, and color sensors.
+\end{itemize}
+The URDF model was loaded into Gazebo using the \texttt{robot\_state\_publisher} to ensure that the TF (Transform) tree was correctly defined for navigation.
+
+%% include code snippet of xml
+
+\subsubsection{Sensor Simulation}
+Simulating the vehicle\textquotesingle s sensors within Gazebo was crucial for testing navigation algorithms. The following sensors were simulated:
+
+\textbf{1. LIDAR Simulation:}
+\begin{itemize}
+    \item Implemented using the \texttt{gazebo\_ros\_ray\_sensor} plugin.
+    \item Configured to publish scan data on the \texttt{/scan} topic.
+    \item Used to test AMCL-based localization and SLAM mapping.
+\end{itemize}
+
+
+\textbf{2. IMU Simulation:}
+\begin{itemize}
+    \item The \texttt{gazebo\_ros\_imu\_sensor} plugin was used to generate \textbf{gyroscope and accelerometer data}.
+    \item Data was published on the \texttt{/imu/data} topic to verify integration with \textbf{robot\_localization}.
+\end{itemize}
+
+%\textbf{2. IMU Simulation:}
+%\begin{itemize}
+%    \item The `gazebo_ros_imu_sensor` plugin was used to generate **gyroscope and accelerometer data**.
+%    \item Data was published on `/imu/data` to verify integration with **robot_localization**.
+%\end{itemize}
+
+\textbf{3. Color Sensor Simulation:}
+\begin{itemize}
+    \item Since Gazebo lacks direct color sensor support, a custom Gazebo plugin was developed to mimic color detection based on object reflection properties.
+    \item The color sensor was used to monitor the wheel rotation for odometry feedback.
+\end{itemize}
+
+\subsubsection{Currently testing Scenarios in Simulation}
+Several scenarios were tested in Gazebo before real-world deployment:
+\begin{enumerate}
+    \item \textbf{Path Following:} The vehicle followed a predefined trajectory, validating motion control.
+    \item \textbf{Obstacle Avoidance:} Objects were placed dynamically to evaluate the local planner's response to real-time obstacles.
+    \item \textbf{SLAM Testing:} The vehicle explored an environment while generating a map using SLAM Toolbox.
+    \item \textbf{PID Tuning:} Speed and steering PID controllers were adjusted iteratively in simulation to achieve smooth motion.
+\end{enumerate}
+Gazebo provided a realistic physics engine, enabling fine-tuned control over vehicle dynamics before real-world testing.
+
+%% for gazebo based stuyd you can plenty of detail complete pipeline
+
+\subsection{Debugging and Logging Strategies}
+Effective debugging and logging are crucial for diagnosing issues and ensuring smooth operation of the ROS2-based autonomous vehicle. Several tools were employed to monitor node performance, sensor data accuracy, and real-time system behavior.
+
+\subsubsection{ROS2 Logging}
+ROS2 provides built-in logging mechanisms that allow developers to capture and analyze system behavior.
+
+\textbf{Logging Strategies Used:}
+\begin{itemize}
+    \item Using \texttt{ros2 log}: Logs critical system events and errors during navigation.
+    \item Logging severity levels: \texttt{Debug, Info, Warn, Error, and Fatal} were used to classify log messages.
+    \item Redirecting logs to a file: 
+    \texttt{\detokenize{ros2 launch <package_name> <launch_file>.launch.py --log-level debug > log.txt}}
+\end{itemize}
+
+\subsubsection{Data Visualization in RViz2 and Foxglove}
+Visualization tools were essential for debugging sensor data and robot state.
+
+%%%% https://docs.foxglove.dev/docs/connecting-to-data/frameworks/ros2, check foxglove good site
+
+\textbf{1. RViz2 for ROS Visualization}
+\begin{itemize}
+    \item Used to visualize LIDAR scans, TF tree, costmaps, and AMCL localization.
+    \item Allowed real-time inspection of `/tf` transformations and `/odom` data.
+\end{itemize}
+
+\textbf{2. Foxglove for Data Playback and Monitoring}
+\begin{itemize}
+    \item Enabled real-time analysis of ROS2 topics similar to \texttt{`rqt\_plot`}.
+    \item Provided an interactive interface to inspect sensor readings.
+\end{itemize}
+
+\subsubsection{Performance Profiling and Optimization}
+To ensure real-time operation, performance profiling tools were used:
+
+\textbf{1. Topic Performance Analysis}
+\begin{itemize}
+    \item \texttt{ros2 topic hz /scan} -- Monitored LIDAR data publishing rate.
+    \item \texttt{ros2 topic delay /cmd\_vel} -- Measured delays in command execution.
+\end{itemize}
+
+\textbf{2. Node Execution Time Profiling}
+\begin{itemize}
+    \item \texttt{ros2 run nav2\_util profiling\_tool} was used to measure computation times.
+    \item Helped identify nodes with \textbf{high latency} and optimize computational efficiency.
+\end{itemize}
+
+
+\subsubsection{Error Handling and Recovery Mechanisms}
+Various error-handling techniques were implemented to ensure robustness:
+\begin{itemize}
+    \item Node Failover: If a node crashes, automatic restart scripts were deployed using `systemd`.
+    \item Watchdog Timer for Navigation: If no velocity command was published within a timeout period, the vehicle switched to a safe stop mode.
+    \item Debugging IMU Drift: A low-pass filter was applied to IMU data to mitigate drift effects.
+\end{itemize}
+
+\subsection{Lessons Learned from Debugging}
+Through extensive debugging and profiling, the following key improvements were made:
+\begin{itemize}
+    \item \textbf{Reduced Latency:} Optimized costmap updates to ensure smooth real-time navigation.
+    \item \textbf{More Stable Localization:} Implemented sensor fusion between LIDAR and IMU for improved odometry.
+    \item \textbf{Better Error Handling:} Introduced safety measures to prevent control system failures.
+\end{itemize}
+
+These enhancements significantly improved the \textbf{reliability and performance} of the autonomous vehicle system.
+
+\subsection{Calibration Process}
+To ensure accurate and reliable sensor measurements, the following calibration procedures were implemented:
+\begin{itemize}
+    \item LIDAR Calibration: Measured and adjusted for sensor alignment errors, ensuring precise distance measurements.
+    \item IMU Calibration: Conducted bias correction and noise filtering to enhance orientation accuracy.
+    \item Odometry Calibration: Measured wheel slip and encoder ticks to refine position estimation.
+    \item Color Sensor Calibration: Tuned sensitivity to optimize color detection under different lighting conditions.
+    \item Motor Controller Calibration: Adjusted PWM signals and motor response curves for smooth acceleration and deceleration.
+\end{itemize}
+
+\subsubsection{Troubleshooting and Challenges}
+Throughout this project, several challenges arose that required systematic troubleshooting and problem-solving strategies. This section outlines the key difficulties encountered, the methods used to resolve them, and the lessons learned from these experiences. 
+
+Each problem presented unique obstacles that required iterative testing, debugging, and optimization. By documenting these solutions, we not only improved the project\textquotesingle s robustness but also established a structured troubleshooting methodology for future enhancements.
+
+\paragraph{Sensor Noise and Calibration Issues}
+One of the earliest and most persistent challenges was dealing with sensor noise, particularly in the IMU and LIDAR data. Raw sensor readings exhibited fluctuations due to environmental factors, vibrations, and inherent measurement errors, leading to inconsistencies in localization and mapping.
+\sloppy
+To mitigate this:
+\begin{itemize}
+\item We implemented various filtering techniques such as:
+  \begin{itemize}
+    \item Low-pass filters to smooth out high-frequency noise in IMU acceleration and gyroscope data.
+    \item Kalman filtering for optimal state estimation by fusing multiple sensor inputs, reducing drift, and improving real-time data reliability.
+  \end{itemize}
+\item Repeated calibration runs were performed using the Ferraris method to refine sensor parameters, ensuring more accurate and consistent readings. This involved:
+  \begin{itemize}
+    \item Performing controlled sensor movements and comparing results with ground truth data.
+    \item Adjusting calibration parameters iteratively and re-evaluating error margins.
+  \end{itemize}
+\item Data logging and visualization tools were utilized extensively:
+  \begin{itemize}
+    \item Using ROS tools such as \texttt{rqt\_plot} and \texttt{rviz} to graphically analyze sensor data.
+    \item Logging sensor outputs to CSV files and performing offline analysis to detect anomalies and optimize calibration parameters.
+  \end{itemize}
+\end{itemize}
+
+\paragraph{Odometry Drift and Localization Errors}
+Odometry drift was a significant challenge that impacted accurate navigation and map consistency over extended runs. In the present study, odometry (`/odom`) data is obtained by fusing measurements from two sensors: a color sensor mounted on the rear wheel and an Inertial Measurement Unit (IMU). The color sensor provides information regarding the linear distance traveled by the vehicle, calculated from the wheel rotation, while the IMU supplies angular velocity and linear acceleration data, facilitating accurate estimation of orientation, heading changes, and dynamic movements. By integrating these complementary data streams, odometry estimation is achieved, required for  localization and navigation performance. However the efficacy of the odom combination is not performed till now. the info about Wheel encoders, while useful, suffered from cumulative errors over time due to:
+\begin{itemize}
+\item Wheel slip, particularly on smooth surfaces, leading to incorrect distance measurements.
+\item Uneven ground, affecting traction and introducing discrepancies in wheel odometry calculations.
+\end{itemize}
+
+To address this issue:
+\begin{itemize}
+\item We employed sensor fusion techniques, integrating data from multiple sources:
+  \begin{itemize}
+    \item Combining wheel odometry with IMU data to improve motion estimation.
+    \item Implementing LIDAR-based SLAM (Simultaneous Localization and Mapping) to correct drift using environmental features.
+  \end{itemize}
+\item Regular calibration of wheel encoders was performed to reduce systematic drift errors:
+  \begin{itemize}
+    \item Conducting controlled movement tests over measured distances and adjusting encoder scaling factors accordingly.
+    \item Logging odometry output and comparing with ground truth measurements to refine correction factors.
+  \end{itemize}
+\item Loop closure detection in SLAM was fine-tuned to correct accumulated drift over long-distance travel.
+\item The TF (transform) tree structure in ROS was carefully verified to ensure consistent frame alignment between \texttt{odom}, \texttt{base\_link}, and sensor frames, preventing coordinate mismatches.
+\end{itemize}
+
+\paragraph{Motor Controller and PWM Signal Instability}
+Motor control issues, such as erratic behavior and inconsistent speed regulation, were major obstacles in achieving smooth motion control. These issues were traced to:
+\begin{itemize}
+\item Noise and fluctuations in PWM signals affecting motor driver performance.
+\item Insufficient resolution in duty cycle adjustments, leading to abrupt speed variations.
+\item Power supply fluctuations impacting motor stability.
+\end{itemize}
+
+To resolve these problems:
+\begin{itemize}
+\item We fine-tuned PWM frequency and duty cycle values to achieve stable motor responses.
+\item Debugging logs were introduced to monitor real-time motor control outputs, helping to diagnose inconsistencies.
+\item We tested different motor driver configurations, adjusting voltage levels to prevent underpowering or overdriving.
+\item A PID (Proportional-Integral-Derivative) controller was implemented for fine-grained speed regulation, ensuring smooth acceleration and deceleration.
+\end{itemize}
+
+\paragraph{Environmental Factors Affecting Sensor Performance}
+LIDAR and color sensor performance was impacted by varying environmental conditions, including:
+\begin{itemize}
+\item Changes in ambient lighting affecting color sensor accuracy.
+\item Surface reflectivity variations leading to LIDAR range errors.
+\item External interference from nearby objects affecting sensor consistency.
+\end{itemize}
+
+Mitigation strategies included:
+\begin{itemize}
+\item Adjusting sensor placement and orientation to reduce interference and improve coverage.
+\item Implementing adaptive thresholding for color sensors to dynamically adjust readings based on lighting conditions.
+\item Conducting extensive testing across different environments to validate sensor robustness.
+\item Using additional shielding and optical filters to reduce interference from ambient light and reflections.
+\end{itemize}
+
+\paragraph{Communication and Synchronization Issues}
+Inter-node communication in ROS occasionally led to delays, affecting real-time performance. This was due to:
+\begin{itemize}
+\item High message frequency overloading the ROS network.
+
+\item Inconsistent timestamps across different sensor topics leading to synchronization issues. We fixed the inconsistent timestamps across sensor topics by ensuring all messages included proper ROS time headers and aligning their publishing rates. We adjusted the `transform\_timeout` and `tf\_buffer\_duration` parameters in the SLAM configuration to handle minor timing differences. Additionally, we verified synchronization using the \textbf{SLAM precheck script}, ensuring all sensor timestamps were within an acceptable range before launching SLAM.
+\end{itemize}
+
+
+To resolve these:
+\begin{itemize}
+\item We optimized ROS topic frequencies to balance data rates and computational load.
+\item Implemented time synchronization methods to align timestamps across different sensor nodes.
+\item Debugging tools like \texttt{rostopic echo}, \texttt{rosbag} recording, and playback were used to analyze message delays and identify bottlenecks.
+\end{itemize}
+
+\paragraph{Peripheral and System-Level Challenges}
+While these issues did not directly impact the project's core objectives, they significantly influenced development efficiency and workflow.
+
+One such issue was configuring the Raspberry Pi 4 (RP4) for SSH connectivity. Initially, the built-in WiFi failed to establish a stable connection, preventing remote access. After multiple debugging attempts, we discovered that the default network manager settings conflicted with the SSH service. To resolve this:
+\begin{itemize}
+\item We manually configured the \texttt{/etc/wpa\_supplicant.conf} file with the correct WiFi credentials.
+\item Restarted network services and tested connectivity using Ethernet to ensure SSH accessibility.
+\item Updated system firmware to patch potential WiFi driver issues.
+\end{itemize}
+
+Another major setback was the choice of the operating system. We initially deployed the Ubuntu GUI version, but performance issues arose due to excessive resource usage, leading to system lag. To optimize performance:
+\begin{itemize}
+\item We switched to the Ubuntu CLI version, significantly reducing memory and CPU consumption.
+\item Removed unnecessary background services and optimized boot configurations for headless operation.
+\end{itemize}
+
+Additionally, debugging hardware-related issues such as faulty SD cards, inconsistent power delivery, and peripheral failures required extensive testing. A key realization was that suboptimal power adapters led to undervoltage warnings, causing unexpected reboots. The final solution involved using a high-quality, 5V 3A power adapter to ensure system stability. Battery performance limitations also posed a challenge, as unexpected battery drain under load affected overall system uptime. We implemented voltage and current monitoring mechanisms to ensure stable power distribution and prevent sudden failures.
+\sloppy
+Furthermore, the Raspberry Pi 4 often experienced overheating issues
+during extended operation, especially under heavy computational loads. 
+We resolved this by installing a heat sink and an active cooling fan, which significantly improved thermal performance and prevented unexpected
+thermal throttling. The integration of the ROS2 Control framework, 
+specifically with the \texttt{ackermann\_steering\_controller}, introduced
+additional complexity. Debugging motor command alignment with ROS2 Control 
+commands required extensive tuning, particularly in ensuring real-time compliance with the ROS2 control loop rates. The lack of steering feedback
+in early tests compounded these issues, leading to overshooting and
+inaccurate angles. To address this, we explored the use of a color sensor
+as a feedback mechanism, improving the accuracy of the steering response.
+\sloppy
+Another unexpected issue arose with the USB peripherals, where certain devices failed to initialize upon boot. This was traced back to power distribution inconsistencies across the USB ports. To mitigate this, we used externally powered USB hubs to provide stable voltage levels to connected devices, ensuring reliable performance. We also encountered difficulties with file system corruption, particularly when abrupt power losses occurred. To address this, we enabled journaling on the file system, implemented automated backups, and ensured the system used a UPS (Uninterruptible Power Supply) to prevent data loss in case of unexpected shutdowns.
+
+In addition, the SLAM and mapping process presented significant challenges, particularly with .pgm map files. Issues arose in creating, loading, and interpreting maps, requiring careful tuning of parameters such as map resolution, inflation radius, and obstacle definitions to ensure accurate navigation. By systematically addressing these challenges, we significantly improved the reliability and accuracy of our system. The solutions developed in this project not only enhanced our understanding of robotic systems but also provided a structured approach for troubleshooting future projects.
+
+
+
+\end{document}

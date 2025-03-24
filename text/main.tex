@@ -1,6 +1,8 @@
 \begin{frontmatter}
     \begin{abstract}
-        A short summary.
+        This report details our work on creating a software framework for autonomous vehicles. We built a system that connects sensors, control units, and computing hardware using ROS 2. The system gathers data from LIDAR, IMU, and color sensors and then fuses this data into a real-time map of the environment. This map helps the vehicle know its position and plan safe paths. We designed the framework to run on small computers such as the Raspberry Pi 4 and Arduino Nano. We also set up communication protocols to ensure smooth data flow between the different parts of the system.
+
+        We tested our system in simulation using Gazebo and then on a real vehicle in a controlled setting. The report explains our approach to sensor fusion, vehicle control, and path planning. We used ros2control and PID controllers to manage the vehicle's speed and steering. Our tests show that the system can handle sensor errors and adjust to changes in the environment. This work lays a clear foundation for future improvements in autonomous vehicle technology and provides valuable insights into integrating software and hardware in real-world applications.
     \end{abstract}
 
     \tableofcontents
@@ -11,7 +13,18 @@
     % \listoftables % optional
 \end{frontmatter}
 
-\chapter{Introduction} \label{introduction}
+\input{text/ch1_introduction}
+\input{text/ch2_literaturereview}
+
+\chapter{Technology Overview}
+\input{text/ch3_1_software}
+\input{text/ch3_2_hardware}
+
+\input{text/ch4_implementation}
+\input{text/ch5_results}
+\input{text/ch6_conclusion}
+
+
 
 
 % Bibliography
@@ -21,3 +34,7 @@
 \appendix
 \chapter{My First Appendix}
 This was just missing.
+\begin{minted}{python}
+
+   
+\end{minted}

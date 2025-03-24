@@ -1,0 +1,290 @@
+\documentclass[english,project]{buwthesis}
+\begin{document}
+\section{Hardware Overview}
+
+
+
+\subsection{Car}
+\begin{itemize}
+    
+    \item Product Dimension: 106 x 62 x 46 cm; 14 kg
+    \item 2 x 25-watt motor (total 50 watts), quiet tyres with a soft rubber ring.
+    \item 2.4 GHz remote control, seat belt, horn.
+    \item 12 Volt 4,5 Ah battery, up to 6 km/h speed
+\end{itemize}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.6\textwidth]{img/car.png}
+    \caption{Car}
+    \label{fig:car}
+\end{figure}
+
+
+\subsection{Raspberry Pi 4 Model B}
+
+
+Raspberry Pi 4 Model B features a high-performance 64-bit quad-core processor,
+dual-display support at resolutions up to 4K via a pair of micro HDMI ports, hardware
+video decode at up to 4Kp60, up to 8GB of RAM, dual-band 2.4/5.0 GHz wireless LAN,
+Bluetooth 5.0, Gigabit Ethernet, USB 3.0, and PoE capability (via a separate PoE HAT
+add-on). For the end user, Raspberry Pi 4 Model B provides desktop performance
+comparable to entry-level x86 PC systems.\cite{raspberrypi4productbrief}
+
+\textbf{Specifications:}
+\begin{itemize}
+    \item Processor: Broadcom BCM2711, quad-core Cortex-A72 (ARM v8) 64-bit SoC @ 1.5GHz
+    \item Memory: 4GB  LPDDR4-3200 SDRAM with on-die ECC
+    \item Connectivity: 2.4 GHz and 5.0 GHz IEEE 802.11b/g/n/ac wireless LAN, Bluetooth 5.0, BLE
+    \item Input power: 5V DC via USB-C connector (minimum 3A)
+\end{itemize}
+
+*This product should only be connected to an external power supply rated at 5V/3A DC or 5.1V/ 3A DC minimum.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.8\textwidth]{img/raspberrypiblock.png}
+    \caption{Raspberry Pi 4 Block Diagram\cite{raspberrypi4productbrief}}
+    \label{fig:raspberrypiblock}
+\end{figure}
+
+
+\subsection{Arduino Nano}
+
+Arduino Nano is an intelligent development board designed for building faster prototypes with the smallest dimension. Arduino Nano being the oldest member of the Nano family, provides enough interfaces for your breadboard-friendly applications. At the heart of the board is ATmega328 microcontroller clocked at a frequency of 16 MHz featuring more or less the same functionalities as the Arduino Duemilanove. The board offers 20 digital input/output pins, 8 analog pins, and a mini USB port. \cite{arduinoNanoDatasheet}
+
+\textbf{Specifications:}
+\begin{itemize}
+    \item Microcontroller: ATmega328 16 MHz, 2KB SRAM, 32KB Flash, 1KB EEPROM
+    \item Input power: 5V DC via Mini-B USB
+    \item Pins:
+    \begin{itemize}
+        \item Built-in LED Pin:13
+        \item Digital I/O Pins:14
+        \item Analog input pins:8
+        \item PWM pins:6
+    \end{itemize}
+
+\end{itemize}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.6\textwidth]{img/arduinonanoblock.png}
+    \caption{Arduino Nano Block Diagram\cite{arduinoNanoDatasheet}}
+    \label{fig:arduinonanoblock}
+\end{figure}
+
+
+
+\subsection{Rplidar A1}
+
+RPLIDAR A1 is a low cost 360 degree 2D laser scanner (LIDAR) solution developed by SLAMTEC. The system can perform 360 degree scan within 12 meter range. The produced 2D point cloud data can be used in mapping, localization and object/environment modeling. RPLIDAR A1's scanning frequency reached 5.5hz when sampling 1450 points each round. And it can be configured up to 10hz maximum.\cite{rplidarA1M8Datasheet}
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{|l|c|p{9cm}|}\hline
+Distance         & mm       & Current measured distance value between the rotating core of the RPLIDAR A1 and the sampling point. \\ \hline
+Heading          & degree   & Current heading angle of the measurement. \\ \hline
+Quality          & level    & Quality of the measurement. \\ \hline
+Start Flag       & (Boolean) & Flag of a new scan. \\ \hline
+\end{tabular}
+\caption{The RPLIDAR A1 Sample Point Data Information\cite{rplidarA1M8Datasheet}}
+\label{tab:rplidar_data_info}
+\end{table}
+
+
+\subsection{Color Sensor - TCS 34725}
+
+The TCS3472 device provides a digital return of red, green, blue (RGB), and clear light sensing values. An IR blocking filter, integrated on-chip and localized to the color sensing photodiodes, minimizes the IR spectral component of the incoming light and allows color measurements to be made accurately. The high sensitivity, wide dynamic range, and IR blocking filter make the TCS3472 an ideal color sensor solution for use under varying lighting conditions and through attenuating materials.\cite{tcs34725datasheet}
+
+\textbf{Features:}
+\begin{itemize}
+
+    \item Red, Green, Blue (RGB), and Clear Light Sensing with IR Blocking Filter
+    \begin{itemize}
+        \item Programmable Analog Gain and Integration Time
+        \item 3,800,000:1 Dynamic Range
+        \item Very High Sensitivity - Ideally Suited for operation Behind Dark Glass
+    \end{itemize}
+
+    \item Maskable Interrupt
+    \begin{itemize}
+        \item Programmable Upper and Lower Thresholds with Persistence Filter
+    \end{itemize}
+    
+    \item Power Management
+    \begin{itemize}
+        \item Low Power - 2.5-mA Sleep State
+        \item 65-mA Wait State with Programmable Wait State Time from 2.4 ms to > 7 Seconds
+    \end{itemize}
+    
+    \item I2C Fast Mode Compatible Interface
+    \begin{itemize}
+        \item Data Rates up to 400 kbit/s
+        \item Input Voltage Levels Compatible with VDD or 1.8 V Bus
+    \end{itemize}
+    
+    \item Register Set and Pin Compatible with the TCS3x71 Series
+    
+    \item Small 2 mm y 2.4 mm Dual Flat No-Lead (FN) Package
+
+\end{itemize}
+
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.8\textwidth]{img/colorsensorblockdiagram.png}
+    \caption{Color Sensor TCS 34725 Terminal Block Diagram\cite{tcs34725datasheet}}
+    \label{fig:colorsensorblockdiagram}
+\end{figure}
+
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{|c|c|l|}
+\hline
+\textbf{Terminal Name} & \textbf{No.} & \textbf{Description} \\ \hline
+GND                   & 3            & Power supply ground. All voltages are referenced to GND. \\ \hline
+INT                   & 5            & Interrupt - open drain (active low). \\ \hline
+NC                    & 4            & No connect - do not connect. \\ \hline
+SCL                   & 2            & I\textsuperscript{2}C serial clock input terminal - clock signal for I\textsuperscript{2}C serial data. \\ \hline
+SDA                   & 6            & I\textsuperscript{2}C serial data I/O terminal - serial data I/O for I\textsuperscript{2}C. \\ \hline
+$V_{DD}$              & 1            & Supply voltage. \\ \hline
+\end{tabular}
+\caption{Color Sensor TCS 34725 Terminal Functions\cite{tcs34725datasheet}}
+\label{tab:colorsensorterminalfunction}
+\end{table}
+
+
+\subsection{Motor Driver - ZK BM1}
+
+ZK-BM1 10A 3-18V DC PWM Dual Motor Driver. 3-18VDC can control 2 motors independently. Single channel operating current is 10 amps. Since the current is above 8 amperes, it is recommended to increase the heat dissipation. The motor driver can move the motor forward and backward and adjust its speed. \cite{motorobitZKBM1}
+
+\textbf{Things to Consider During Use:}
+\begin{itemize}
+    \item When changing the forward-backward direction of the motor, be sure to stop the motor and change direction
+    \item Make connections carefully, there is no reverse polarity protection
+    \item PWM control frequency should not exceed 2kHz. Otherwise, the module will be damaged
+    \item If the Operating Current exceeds 8 amperes, heat dissipation equipment must be added
+\end{itemize}
+
+\textbf{Specifications:}
+\begin{itemize}
+    \item Supply Voltage: 3-18V DC
+    \item Operating Current: 10 A for each channel
+    \item Supported PWM Frequency Range: 0 - 2 kHz
+    \item Operating Temperature Range: -25 ~ 85C
+    \item Module Size: 49x39x14mm
+\end{itemize}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.4\textwidth]{img/motordriverlogic.png}
+    \includegraphics[width=0.4\textwidth]{img/motordriverwiring.png}
+    \caption{Motor Driver Logic Table and Wiring Digram\cite{motorobitZKBM1}}
+    \label{fig:motordriverlogic}
+\end{figure}
+
+\subsection{IMU Sensor - GY 521}
+
+The GY-521 is a module based on MPU6050 sensor chip which is a system that combines a 3-axis gyroscope, a 3-axis accelerometer and a digital thermometer. Its special feature is the built-in hardware DMP (Digital Motion Processor) unit, which facilitates the conversion of processed data from all three sensors to a specific position relative to the Earth, thus relieving the microcontroller. The DMP unit can be programmed to also use an external magnetometer for its calculations.\cite{mpu6050datasheet}
+
+\textbf{Features:}
+\begin{itemize}
+
+    \item \textbf{Gyroscope Features:}
+    \begin{itemize}
+        \item Digital output X, Y, and Z-Axis angular rate sensors (gyroscopes) with a user-programmable full-scale range of \[\pm 250,\ \pm 500,\ \pm 1000,\ \text{and}\ \pm 2000\ \text{/sec}\]
+        \item Integrated 16-bit ADCs enable simultaneous sampling of gyros
+        \item Enhanced bias and sensitivity temperature stability reduces the need for user calibration
+        \item Digitally-programmable low-pass filter
+    \end{itemize}
+
+    \item \textbf{Accelerometer Features:}
+    \begin{itemize}
+        \item Digital-output triple-axis accelerometer with a programmable full scale range of \[\pm 2g, \ \pm 4g, \ \pm 8g, \ \text{and} \ \pm 16g\]
+        \item Integrated 16-bit ADCs enable simultaneous sampling of accelerometers while requiring no external multiplexer
+        \item Orientation detection and signaling
+        \item User-programmable interrupts for free-fall, high-G and zero motion/motion
+    \end{itemize}
+
+\end{itemize}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.8\textwidth]{img/mpu6050blockdiagram.png}
+    \caption{GY 521 MOU 6050 Terminal Block Diagram\cite{mpu6050datasheet}}
+    \label{fig:mpu6050blockdiagram}
+\end{figure}
+
+\begin{longtable}{|l|l|p{10cm}|}
+\hline
+\textbf{Pin Name} & \textbf{Pin Number} & \textbf{Description} \\ \hline
+GND & 18 & Power supply ground. \\ \hline
+VDD & 13 & Power supply voltage and digital I/O supply voltage. \\ \hline
+CLKIN & 1 & Optional external reference clock input. Connect to GND if unused. \\ \hline
+AUX\_DA & 6 & I2C master serial data, for connecting to external sensors. \\ \hline
+AUX\_CL & 7 & I2C master serial clock, for connecting to external sensors. \\ \hline
+VLOGIC & 8 (MPU-6050) & Digital I/O supply voltage. \\ \hline
+AD0 / SDO & 9 & I2C Slave Address LSB (AD0); SPI serial data output (SDO). \\ \hline
+REGOUT & 10 & Regulator filter capacitor connection. \\ \hline
+FSYNC & 11 & Frame synchronization digital input. Connect to GND if unused. \\ \hline
+INT & 12 & Interrupt digital output (totem pole or open-drain). \\ \hline
+CPOUT & 20 & Charge pump capacitor connection. \\ \hline
+CLKOUT & 22 & System clock output. \\ \hline
+SCL / SCLK & 23 & I2C serial clock (SCL); SPI serial clock (SCLK). \\ \hline
+SDA / SDI & 24 & I2C serial data (SDA); SPI serial data input (SDI). \\ \hline
+NC & 2, 3, 4, 5, 14-17, 19, 21 & Not internally connected. May be used for PCB trace routing. \\ \hline
+\caption{Terminal Function Table for MPU-6050\cite{mpu6050datasheet}}
+\label{tab:terminal_functions}
+\end{longtable}
+
+
+
+\subsection{Magnetic Contactless Potentiometer - AS5600}
+
+The AS5600 is an easy to program magnetic rotary position sensor with a high-resolution 12-bit analog or PWM output. This contactless system measures the absolute angle of a diametric magnetized on-axis magnet. This AS5600 is designed for contactless potentiometer applications and its robust design eliminates the influence of any homogenous external stray magnetic fields.\cite{AS5600Datasheet}
+
+
+\textbf{Features:}
+\begin{itemize}
+
+    \item Contactless angle measurement
+    \item Simple user-programmable start and stop positions over the I\textsuperscript{2}C interface
+    \item Maximum angle programmable from 18 up to 360
+    \item 12-bit DAC output resolution
+    \item Analog output ratiometric to VDD or PWM-encoded digital output
+    \item Automatic magnet detection
+    \item Wide temperature range: -40 C to 125 C
+
+\end{itemize}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.6\textwidth]{img/magneticpotentiometerblockdiagram.png}
+    \caption{Magnetic Contactless Potentiometer AS5600 Terminal Block Diagram\cite{AS5600Datasheet}}
+    \label{fig:magneticpotentiometerblockdiagram}
+\end{figure}
+
+\begin{longtable}{|l|l|p{10cm}|}
+\hline
+\textbf{Pin Name} & \textbf{Pin Number} & \textbf{Description} \\ \hline
+GND & 18 & Power supply ground. \\ \hline
+VDD & 13 & Power supply voltage and digital I/O supply voltage. \\ \hline
+CLKIN & 1 & Optional external reference clock input. Connect to GND if unused. \\ \hline
+AUX\_DA & 6 & I2C master serial data, for connecting to external sensors. \\ \hline
+AUX\_CL & 7 & I2C master serial clock, for connecting to external sensors. \\ \hline
+VLOGIC & 8 (MPU-6050) & Digital I/O supply voltage. \\ \hline
+AD0 / SDO & 9 & I2C Slave Address LSB (AD0); SPI serial data output (SDO). \\ \hline
+REGOUT & 10 & Regulator filter capacitor connection. \\ \hline
+FSYNC & 11 & Frame synchronization digital input. Connect to GND if unused. \\ \hline
+INT & 12 & Interrupt digital output (totem pole or open-drain). \\ \hline
+CPOUT & 20 & Charge pump capacitor connection. \\ \hline
+CLKOUT & 22 & System clock output. \\ \hline
+SCL / SCLK & 23 & I2C serial clock (SCL); SPI serial clock (SCLK). \\ \hline
+SDA / SDI & 24 & I2C serial data (SDA); SPI serial data input (SDI). \\ \hline
+NC & 2, 3, 4, 5, 14-17, 19, 21 & Not internally connected. May be used for PCB trace routing. \\ \hline
+\caption{Terminal Function Table for MPU-6050\cite{mpu6050datasheet}}
+\label{tab:terminal_functions}
+\end{longtable}
+\end{document}

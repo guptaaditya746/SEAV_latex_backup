@@ -1,0 +1,38 @@
+\documentclass[english,project]{buwthesis}
+\begin{document}
+\chapter{Conclusion and Future Directions}
+
+\section*{Future Directions}
+
+To enhance the capabilities of the developed robot, the following improvements are proposed. These are categorized based on implementation complexity and priority.
+
+\subsection*{1. Easy / High Priority Enhancements}
+\begin{itemize}
+    \item Integrate a camera for live video feed and remote monitoring.
+    \item Add object detection using pretrained neural networks (e.g., MobileNet, YOLO).
+    \item Mount ultrasonic sensors at each corner for blind spot detection.
+    \item Improve TF tree by refining static transforms and buffering.
+    \item Integrate magnetenometer for steering feedback and also before it check do calibration.
+    \item Developing package for Calibration of all sensors
+\end{itemize}
+
+\subsection*{2. Mid-Level Enhancements}
+\begin{itemize}
+    \item Implement a ROS~2-compatible tricycle joint controller for realistic drive behavior.
+    \item Add wheel encoders to enhance odometry accuracy.
+    \item Incorporate real-time obstacle avoidance using costmaps and local planner adjustments.
+    \item Build a real-time monitoring dashboard for sensor and robot state feedback.
+\end{itemize}
+
+\subsection*{3. Advanced / Research-Grade Extensions}
+\begin{itemize}
+    \item Fuse camera, Lidar, and IMU data for robust 3D SLAM.
+    \item Experiment with deep learning-based perception and control methods.
+    \item Add autonomous goal selection and task-level decision-making modules.
+    \item Extend to multi-robot systems with inter-robot coordination.
+    \item Optimize deployment for edge devices like NVIDIA Jetson or Google Coral.
+\end{itemize}
+
+
+
+\end{document}

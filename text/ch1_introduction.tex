@@ -1,0 +1,44 @@
+\documentclass[english,project]{buwthesis}
+\begin{document}
+\chapter{Introduction} \label{introduction}
+
+\section{Problem Statement}
+
+Autonomous vehicles must do many tasks at the same time. They collect data from many sensors and then use that data to decide how to move. The vehicle uses sensors like LIDAR, IMU, and color sensors. Each sensor gives a different kind of data. Sometimes, this data can be noisy or unclear. The system must combine all this data to form a clear picture of the surroundings. This process is called sensor fusion. It is not an easy task, especially when some sensors do not work as expected.
+
+The software must run on small computers like the Raspberry Pi and Arduino Nano. These devices have limited power and memory. They cannot handle heavy processing tasks. The software must be efficient and run in real time. The vehicle must be able to map its environment, know its location, and plan a safe path, and then navigate on the path depending on how the path is defined. And it is achieved by controlling motors and steering accurately. All these tasks must run at once, and they must work even when the conditions change suddenly. 
+% If one sensor fails, the system must still work using data from the other sensors.
+
+We build a system that connects these sensors to the control units using ROS 2. We can test the system in a simulator and on a real vehicle. Our goal is to show a clear way to use limited hardware to guide an autonomous vehicle safely.
+
+\section{Motivation}
+
+Our main goal is to build a complete software framework for an autonomous vehicle. We use ROS 2 to connect sensors, control units, and computing hardware. The system gathers data from LIDAR, IMU, and color sensors. It then fuses this data to create a clear map of the vehicle's surroundings. This map helps the system locate the vehicle and plan safe paths. We work on collecting accurate sensor data and handling errors.
+
+We also focus on controlling the vehicle in real time. We use ros2 control and PID controllers to manage speed and steering. The system sends clear commands to the motors based on the sensor data and the planned path. We set up simple communication protocols like I2C and UART to ensure that data moves quickly between the parts. The system is tested first in simulation using Rviz and then in real-world conditions. Our approach helps us understand how all the parts work together and lays a solid foundation for future improvements in autonomous vehicle technology.
+
+\section{Objective}
+\begin{itemize}
+
+
+\item \textbf{Develop a complete software framework}:
+Build a system that connects sensors, control units, and computing hardware. Use ROS 2 to manage data flow between all parts. The framework must work on limited devices like the Raspberry Pi and Arduino Nano.
+\item \textbf{Gather sensor data accurately}:
+Use LIDAR, IMU, and color sensors to collect data. Ensure that each sensor sends clear and reliable information. Manage noise and errors to get the best possible data.
+\item \textbf{Fuse sensor data into an accurate map}:
+Combine data from all sensors to form a real-time map of the surroundings. This map helps the vehicle understand its environment and know its location. The fusion process must handle inconsistencies in the data.
+\item \textbf{Localize the vehicle reliably}:
+Use the fused sensor data to pinpoint the vehicle's position. Update the location continuously to guide the vehicle safely along its path.
+\item \textbf{Plan safe and efficient paths}:
+Create algorithms that plan clear routes for the vehicle. Avoid obstacles and select paths that are both safe and practical. The planning must work in real time.
+\item \textbf{Control vehicle motion effectively}:
+Use ros2control and PID controllers to manage speed and steering. Send clear motor commands that adjust quickly to changes in the environment.
+\item \textbf{Set up reliable communication protocols}:
+Use I2C and UART to link sensors and controllers. Ensure messages pass correctly between devices without delays.
+\item \textbf{Test the system thoroughly}:
+Begin with simulations in Gazebo and then perform controlled real-world tests. Measure performance and adjust settings as needed.
+
+
+\end{itemize}
+
+\end{document}

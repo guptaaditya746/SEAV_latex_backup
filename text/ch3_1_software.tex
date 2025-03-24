@@ -1,0 +1,236 @@
+\documentclass[english,project]{buwthesis}
+\begin{document}
+\section{Software Overview}
+
+\subsection{Operating System}
+The choice of OS for the Raspberry Pi 4 Model B and the desktop workstation was Ubuntu 22.04 LTS, preferring long-term support, stability, security updates, and compatibility with ROS 2 Humble. Being an LTS version, it guarantees a trustworthy platform for self-driving development with wide support in the community plus regular maintenance. The Raspberry Pi will use the resource-efficient Ubuntu Server (no GUI) for real-time operations, such as sensor data acquisition and actuator control while conserving resources as much as possible. On the other hand, the station is using the full Ubuntu Desktop version due to the computing power required, as real heavy workloads like Gazebo simulation, RViz visualization, and exhaustive testing would not be practical on the Pi.
+
+The dual-platform setup benefits highly from the consistent software environments and careful dependency management is handled using Ubuntu\textquotesingle s native package manager (apt) for ROS 2 core packages and system libraries, and pip for Python-specific packages and rosdep takes care of automating the installation of ROS-specific dependencies for both platforms. This combined toolchain, apt, pip, and rosdep provides extensive consistency and a lower potential for conflicts making it easier for developers to maintain a stable and reproducible system across both the Raspberry Pi and the desktop.
+
+\subsection{Middleware}
+\subsubsection{ROS 2 Humble and DDS Middleware}
+
+ROS 2 Humble Hawksbill serves as the middleware framework for orchestrating communication between the autonomous vehicle\textquotesingle s sensing, perception, planning, and control components. As a Long-Term Support (LTS) release, it offers enhanced real-time capabilities, improved reliability, robust security, and ongoing support making it well-suited for autonomous systems.
+
+A key advancement in ROS 2 is its integration with the Data Distribution Service (DDS) standard. DDS enables scalable, decentralized, and low-latency communication between distributed nodes, replacing the centralized publish-subscribe model used in ROS 1. It supports anonymous topic-based communication across multiple machines and allows fine-tuning through configurable Quality of Service (QoS) policies. These QoS settings help balance latency, reliability, and throughput, which is essential for prioritizing critical sensor and control messages in real-time autonomous operations.
+
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.6\textwidth]{img/software/ros_middleware_overview_mathworks.png}
+    \caption{ROS 2 Middleware Overview: Integration of DDS in ROS 2}
+    \label{fig:ros2_middleware}
+\end{figure}
+
+
+\subsubsection{Nodes, Topics, Services, and Actions}
+ROS 2 uses a modular architecture composed of nodes, each encapsulating specific functionalities such as sensor processing, localization, and control. Nodes interact exclusively through clearly defined interfaces:
+\begin{itemize}
+    \item Topics
+    \begin{itemize}
+        \item Provide asynchronous data communication channels ideal for continuous sensor data streams, such as LiDAR point clouds and odometry updates.
+    \end{itemize}
+
+    \item Services
+    \begin{itemize}
+        \item Enable synchronous request-response communication, useful for discrete commands or status checks like initiating sensor calibration.
+    \end{itemize}
+
+    \item Actions
+    \begin{itemize}
+        \item Support goal-oriented asynchronous tasks with feedback loops, beneficial for complex operations such as navigation or docking maneuvers.
+    \end{itemize}
+    
+\end{itemize}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.7\textwidth]{img/software/node_topic_service_ros2doc.png}
+    \caption{ROS 2 Nodes, Topics, Services, and Actions}
+    \label{fig:ros2_comm_model}
+\end{figure}
+
+\subsubsection{ROS 2 Tooling and Development Workflow}
+ROS 2 provides comprehensive tooling to streamline software development, deployment, and debugging. The colcon build tool efficiently manages workspace compilation and dependency resolution. The ros2 launch system simplifies system initialization, configuration, and node orchestration. Diagnostic and visualization tools, including RViz2 and RQT, support real-time monitoring, debugging, and system introspection, essential for verifying proper integration and functionality during development.
+
+\subsection{Simultaneous Localization and Mapping (SLAM)}
+\subsubsection{Overview and Importance}
+Simultaneous Localization and Mapping (SLAM) is a fundamental technique in autonomous robotics, enabling a robot to concurrently build a map of an unknown environment and estimate its position within that map. SLAM addresses the critical challenge of operating autonomously in GPS-denied or dynamically changing areas, making real-time navigation decisions without prior environmental knowledge. 2D SLAM is commonly selected in many robotic applications due to its computational efficiency, suitability for real-time execution on resource-constrained hardware, and compatibility with planar LiDAR sensors.
+
+
+\subsubsection{Implementation Using SLAM Toolbox}
+The ROS 2 SLAM Toolbox package is utilized to achieve robust 2D SLAM capabilities. SLAM Toolbox offers efficient real-time pose-graph SLAM functionality tailored specifically for ROS 2 Humble, including incremental and lifelong mapping, loop closure detection, and pose graph optimization. This toolbox was selected due to its active development, seamless integration with ROS 2, and proven real-world performance. Alternative approaches, such as Google Cartographer and GMapping, were considered but not pursued due to reduced support and incomplete ROS 2 compatibility.
+
+\subsubsection{Pose Graph Mapping, Real-Time Updates, and Loop Closure}
+
+SLAM Toolbox applies a pose-graph approach, incrementally constructing an occupancy grid map by aligning new LiDAR scans with previous ones using scan matching algorithms such as Iterative Closest Point (ICP). Each aligned scan contributes constraints to the pose graph, continuously improving localization accuracy as the robot navigates.
+
+To support real-time performance, parameters such as scan insertion frequency, resolution, and search algorithms are optimized for resource-constrained hardware like the Raspberry Pi. The map updates dynamically with new observations, enabling immediate navigation in previously unmapped areas.
+
+Over time, localization drift may accumulate. To address this, SLAM Toolbox performs loop closure detection by recognizing revisited areas and matching current scans with historical data. Upon detecting a loop closure, additional constraints are added to the pose graph, triggering a global optimization step using solvers like Google\textquotesingle s Ceres Solver. This process corrects accumulated drift and improves overall map consistency. SLAM Toolbox\textquotesingle s lifelong mapping feature enables continuous refinement and optimization, increasing long-term reliability in dynamic environments.
+
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{img/software/slam_pose_graph.jpg}
+    \caption{Pose-Graph SLAM: Front-End Feature Extraction and Back-End Optimization}
+    \label{fig:slam_pose_graph}
+\end{figure}
+
+\subsection{Navigation and Path Planning}
+\subsubsection{Overview of the ROS 2 Navigation Stack}
+The ROS 2 Navigation Stack (Nav2) provides a robust, modular, and widely-adopted framework essential for autonomous navigation tasks. It integrates localization, global and local planning, obstacle avoidance, and recovery strategies into a cohesive architecture. Utilizing a behavior tree approach, Nav2 orchestrates these functionalities dynamically, offering flexibility and adaptability crucial for real-world autonomous vehicle operations.
+
+\subsubsection{Localization from SLAM in ROS 2 Navigation Stack}
+The SLAM-generated occupancy grid map and localization data are directly integrated into the ROS 2 Navigation Stack (Nav2). SLAM Toolbox continuously updates the `map->odom` transform, providing real-time localization of the vehicle within the constructed map. 
+
+This transform enables Nav2\textquotesingle s core components, including the global planner (`planner\_server`) and local controller (`controller\_server`), to operate with precise localization input. The AMCL (Adaptive Monte Carlo Localization) node, when used with an existing static map, further refines localization accuracy by processing sensor (`/scan`) data. 
+
+Nav2 leverages this accurate localization to:
+\begin{itemize}
+    \item Perform global and local path planning based on updated map information.
+    \item Execute obstacle avoidance using costmaps (`global\_costmap`, `local\_costmap`).
+    \item Enable smooth motion control via `cmd\_vel` commands sent to the base controller.
+\end{itemize}
+
+Ensuring synchronization between SLAM and Nav2 is critical for reliable autonomous navigation. The bt\_navigator component in Nav2 orchestrates navigation actions (`NavigateToPose`, `FollowPath`), ensuring seamless integration between localization, planning, and control. 
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.9\textwidth]{img/software/nav2_architecture.png}
+    \caption{ROS 2 Navigation Stack (Nav2) Architecture: Integration of Localization, Planning, and Control}
+    \label{fig:nav2_architecture}
+\end{figure}
+
+\subsubsection{Global and Local Planning Overview}
+
+In the ROS 2 Navigation Stack (Nav2), global planners compute high-level paths from the robot\textquotesingle s current location to a specified goal using occupancy grid maps. Local planners are responsible for generating real-time velocity commands that enable the robot to follow the planned path while dynamically avoiding obstacles. Nav2 supports a variety of planning algorithms for both global and local planning tasks. Examples include A\* and Dijkstra for global path computation, and DWB (Dynamic Window Approach) or TEB (Timed Elastic Band) for local trajectory optimization. The choice of planners can be tailored to the robot\textquotesingle s kinematic model, environmental complexity, and desired navigation behavior.
+
+
+
+\subsubsection{Costmaps and Obstacle Avoidance}
+Costmaps serve as the underlying representation of the navigational environment, encoding static and dynamic obstacles in a layered grid structure. Nav2 employs three primary costmap layers:
+\begin{itemize}
+    \item Static Layer
+    \begin{itemize}
+        \item Represents fixed obstacles derived from pre-built or SLAM-generated maps.
+    \end{itemize}
+
+    \item Obstacle Layer
+    \begin{itemize}
+        \item Continuously updated in real-time with sensor data, capturing moving or unforeseen obstacles.
+    \end{itemize}
+
+    \item Inflation Layer
+    \begin{itemize}
+        \item Provides safety margins around obstacles by inflating obstacle regions to ensure safe distances and smoother trajectory generation.
+    \end{itemize}
+\end{itemize}
+
+\subsubsection{Dynamic Replanning and Recovery Strategies}
+
+Real-world autonomous navigation necessitates robust strategies to handle unforeseen environmental changes or navigational failures.
+
+\begin{itemize}
+    \item \textbf{Dynamic Replanning}: 
+    \begin{itemize}
+        \item Nav2 regularly updates the global path to adapt to new obstacles or environmental changes, typically on the order of seconds. This ensures the vehicle can continuously adjust its path in response to dynamic conditions without human intervention.
+    \end{itemize}
+    
+    \item \textbf{Recovery Behaviors}: Nav2 incorporates predefined recovery mechanisms activated through behavior trees when encountering navigational difficulties. Common recovery behaviors include:
+    \begin{itemize}
+        \item \textbf{Spin Recovery}: Rotating the vehicle in place to scan surroundings and update the local environment representation.
+        \item \textbf{Clearing Costmap}: Resetting local or global costmaps to remove outdated obstacle data.
+        \item \textbf{Backup and Rotate Maneuvers}: Allowing the vehicle to reposition itself when facing persistent obstacles.
+    \end{itemize}
+\end{itemize}
+
+
+
+\subsection{Control Systems}
+\subsubsection{Motor Control Fundamentals}
+Motor control is a critical component of autonomous robotic systems, involving precise regulation of actuator movements to achieve desired trajectories. Effective motor control often requires real-time adjustments to account for environmental factors, actuator dynamics, and external disturbances. Closed-loop control methods, incorporating sensor feedback, are typically employed in robotic systems to ensure accurate and stable actuator performance.
+\subsubsection{ROS 2 Control Framework (ros2\_control)}
+The ros2\_control framework provides a modular and standardized approach to managing robotic actuators within the ROS 2 ecosystem. It enables efficient hardware abstraction, controller management, and real-time actuator control while ensuring safe and scalable system operation.
+
+At its core, ros2\_control consists of:
+\begin{itemize}
+    \item Controllers: Independent modules that regulate actuators based on input commands and sensor feedback. Multiple controllers can be managed dynamically to support various motion control strategies.
+    \item Controller Manager: A centralized entity responsible for dynamically loading, unloading, and supervising controllers, ensuring seamless system operation.
+    \item Hardware Interfaces: These provide communication between controllers and physical components. Interfaces are typically categorized into:
+    \begin{itemize}
+        \item State Interfaces: Read-only interfaces that relay sensor data and system feedback.
+        \item Command Interfaces: Read-write interfaces allowing controllers to send actuation commands to motors or other robotic components.
+    \end{itemize}
+    \item Hardware Resources: The physical components, such as sensors, actuators, and transmission mechanisms, that interact with the control system.
+\end{itemize}
+
+A key advantage of ros2\_control is its flexibility and scalability. It enables robots to seamlessly switch between different controllers, optimize resource allocation, and support real-time operation across diverse robotic platforms. The framework is widely adopted in differential drive robots, robotic arms, and mobile platforms, providing an efficient and structured approach to motion control.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth, height=0.7\textheight, keepaspectratio]{img/software/ros2_control_architecture.png}
+    \caption{ROS 2 Control Framework: Controller Manager, Resource Manager, and Hardware Interfaces}
+    \label{fig:ros2_control_architecture}
+\end{figure}
+
+
+
+\subsubsection{PID Controllers: Fundamentals and Tuning}
+Proportional-Integral-Derivative (PID) controllers are widely utilized in robotic applications for motion control due to their simplicity, robustness, and proven effectiveness. A PID controller adjusts actuator commands based on the difference between desired and measured states, continuously minimizing errors in real time. Proper tuning of PID gains (proportional, integral, derivative) is essential to avoid instability or sluggish system response, typically achieved through iterative adjustment informed by experimental observations or established tuning methodologies.
+\subsubsection{Motion Control Algorithms}
+Motion control algorithms translate navigation commands into actionable actuator signals. Two common algorithms for mobile robots are:
+\begin{itemize}
+    \item Differential Drive Control
+    \begin{itemize}
+        \item Frequently used in robotic platforms with independently driven wheels, differential drive achieves steering by adjusting relative wheel speeds. This allows precise maneuverability, including zero-radius turns, making it highly suitable for compact, indoor robotic systems.
+    \end{itemize}
+
+
+    \item Ackermann Steering Control
+    \begin{itemize}
+        \item Widely adopted for car-like vehicles, Ackermann steering provides smooth turning behavior by controlling wheel angles and velocity. Path-tracking algorithms such as Pure Pursuit and Stanley controllers are commonly employed to follow defined trajectories accurately and stably, particularly beneficial for higher-speed, outdoor autonomous vehicles.
+    \end{itemize}
+\end{itemize}
+
+\subsection{Visualization}
+Visualization tools are essential components in robotic software development, enabling developers to monitor real-time system behavior, diagnose problems rapidly, and interact with complex robotic systems intuitively. Within the ROS 2 ecosystem, the visualization and graphical monitoring of data streams and system states are primarily handled through tools such as RViz and RQT.
+\subsubsection{Robot Visualization with RViz}
+RViz (ROS Visualization) is a sophisticated 3D visualization software package specifically designed for use with ROS-based robotic systems. It provides real-time graphical representations of sensor data, robot configurations, and state information, facilitating both development and debugging processes. In autonomous robotics applications, especially those involving complex sensor fusion and navigation tasks, visualizing the data is critical for verifying system performance and identifying anomalies.
+
+RViz supports a wide range of visualization types, including point clouds, coordinate frames, occupancy maps, robot models, and planned paths. Its interactive and modular interface helps developers gain real-time insights into system behavior and detect issues quickly.
+
+\subsubsection{System Monitoring and Control with RQT}
+RQT (ROS Qt Toolkit) is a versatile graphical user interface framework built on top of Qt, offering a flexible environment for system monitoring, debugging, and basic robot control within ROS systems. Its modular architecture allows developers to customize the user interface by selecting from numerous available plugins or creating custom plugins as needed.
+
+RQT includes plugins for real-time topic plotting, node management, parameter tuning, and basic teleoperation. These features make it a valuable tool during development and testing phases by offering immediate system insights and interaction capabilities.
+
+The combination of visualization, interaction, and real-time monitoring offered by RQT accelerates the software development cycle by providing immediate insights into system operation and performance. It complements RViz by handling numerical and textual data, offering developers a comprehensive suite for effective system debugging and iterative refinement.
+
+\subsection{Simulation and Testing}
+Simulation plays a crucial role in the development, verification, and validation of autonomous vehicle software, enabling safe, efficient, and repeatable testing of robotic algorithms in virtual environments. This section outlines the simulation environment and methods utilized in the project, including robot model definition, sensor data simulation, algorithm validation, and debugging strategies.
+\subsubsection{Gazebo Simulation Environment}
+
+Gazebo is a widely used robotic simulation environment that integrates seamlessly with ROS 2, enabling virtual testing and development of robotic systems. It supports simulation of robot dynamics, sensor data, and environmental interactions, allowing developers to evaluate SLAM, navigation, perception, and control algorithms in a safe and repeatable manner.
+
+By replicating real-world conditions virtually, Gazebo helps identify issues early in the development cycle, reducing the risk of hardware damage and improving overall system reliability. It plays a key role in accelerating development and debugging processes by enabling rapid prototyping and validation without requiring physical deployment.
+
+\subsubsection{Robot Model Definition (URDF and Xacro)}
+Accurate simulation requires a realistic representation of the robot\textquotesingle s physical characteristics and sensor layout. The robot was defined using the Unified Robot Description Format (URDF), an XML-based description standard widely adopted within ROS. URDF captures essential physical properties, including kinematic structure, inertial parameters, and sensor placements. To simplify model management, URDF files were generated and managed using Xacro, an XML macro language that provides modularity and reusability through parameters and macros. The structured robot model serves as the foundation for simulations, accurately reflecting hardware constraints, sensor perspectives, and physical interactions within Gazebo. This ensures simulation fidelity and enables meaningful insights into robot performance under various test conditions.
+\subsubsection{Sensor Simulation and Data Validation}
+An essential advantage of simulation-based testing is the ability to simulate sensor data streams closely resembling real-world conditions. Gazebo supports realistic simulation of sensors such as LiDAR, IMU, camera modules, and wheel encoders. Sensor simulation incorporates noise and error models to replicate real-world inaccuracies, enabling validation of sensor data processing algorithms and sensor fusion techniques used in localization, mapping, and navigation. By conducting sensor validation in simulation, issues like improper data synchronization, sensor misalignments, and data processing errors are identified and addressed early, improving reliability before hardware integration.
+\subsection{Multi-Machine Communication}
+
+Reliable communication between multiple computational devices is essential in autonomous robotic systems, especially when processing tasks are distributed across onboard and external computing units. ROS 2 provides native support for distributed systems through its middleware layer, allowing seamless data exchange across machines.
+
+This capability enables developers to offload computationally intensive tasks, such as visualization, logging, or high-level planning, to more powerful machines, while real-time tasks like sensor data processing and actuator control remain on embedded platforms. ROS 2's decentralized, peer-to-peer communication model, based on the Data Distribution Service (DDS), ensures robust and scalable multi-machine deployments without relying on a central server.
+\subsubsection{ROS 2 Networking for Distributed Computation}
+ROS 2 inherently supports distributed computing through its use of the Data Distribution Service (DDS) middleware, enabling decentralized, peer-to-peer communication across networked computers. DDS allows nodes running on separate machines to transparently exchange data, simplifying the deployment of computationally demanding tasks such as visualization, logging, and high-level planning on powerful desktop machines, while delegating real-time sensor processing and actuator control to the onboard system (e.g., Raspberry Pi). The decentralized DDS architecture eliminates the single point of failure present in earlier ROS versions, making multi-machine deployments robust, scalable, and fault-tolerant.
+
+
+\subsubsection{Time Synchronization and Data Consistency}
+
+Accurate time synchronization between distributed computers is essential for ensuring data consistency, sensor fusion accuracy, and precise localization and navigation tasks. ROS~2 relies on synchronized system clocks (e.g., using the Network Time Protocol~(NTP) or the Precision Time Protocol~(PTP)) across machines to correctly timestamp sensor data and maintain a consistent interpretation of temporal relationships. 
+
+Proper synchronization mitigates issues such as latency-induced localization drift or sensor misalignment, thereby improving the reliability and accuracy of distributed data fusion processes. Standard practices involve configuring NTP or PTP on all involved machines, ensuring high-quality data exchange and robust system operation.
+\end{document}
