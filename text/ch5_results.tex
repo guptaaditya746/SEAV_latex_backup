@@ -53,7 +53,14 @@ SLAM was successfully implemented using IMU and LIDAR in a simulated environment
 \begin{figure}[ht]
     \centering
     \includegraphics[width=0.7\textwidth]{img/result/slam_before_imu.jpeg}  % Replace with actual image
-    \caption{SLAM map}
+    \caption{SLAM map before calibration}
+    \label{fig:slam map generated before imu calibration}
+\end{figure}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.7\textwidth]{img/implement/slam after calibrating IMU.png}  % Replace with actual image
+    \caption{SLAM map after calibration}
     \label{fig:slam map generated before imu calibration}
 \end{figure}
 
@@ -158,11 +165,13 @@ These calibration steps have significantly enhanced the accuracy of orientation 
     \item Motor Controller Calibration: PWM signal tuning optimized motor speed control, improving motion smoothness.
 \end{itemize}
 
-\subsection{Challenges and Future Work}
-
-Several challenges remain, particularly with dynamic obstacle avoidance, sensor fusion, and real-time data processing. These areas will be addressed in the next phase of development, where further optimization and real-world testing will be carried out. The integration of real-time feedback and further fine-tuning of the decision-making algorithms are key tasks for the successful deployment of the autonomous vehicle.
-
 \subsection{Summary of Results}
 
-The system has shown significant progress in its ability to perform basic navigation tasks, integrate sensors, and execute basic decision-making algorithms. However, full autonomous operation is still a work in progress. The upcoming tasks focus on refining the autonomous navigation, integrating real-time decision-making, and optimizing the system for real-world deployment.
+The project successfully demonstrated a functional software framework for autonomous navigation using ROS~2. Key capabilities such as sensor integration, path planning, behavior-based decision-making, and goal-driven motion were achieved using the Nav2 stack. The system can reliably navigate to user-defined goal locations in both simulated and real-world environments, confirming the effectiveness of the modular architecture and integration strategy.
+
+However, the project also revealed several areas that require further development. One critical issue encountered during SLAM testing involved the system's inability to generate a growing map despite correct movement and valid sensor data. A thorough investigation traced this problem to the asynchronous nature of the odometry input. In this setup, odometry was derived from two sources: an IMU for real-time angular updates, and a distance node that only updated position at fixed spatial intervals of 8.2\,cm. As a result, the \texttt{/odom} topic did not reflect continuous motion, leading to stale pose information being fed to the SLAM algorithm.
+
+Since SLAM systems like \texttt{slam\_toolbox} depend on accurate and regularly updated odometry for reliable scan matching, this issue prevented new scans from being properly registered, resulting in a static map. This finding highlights the importance of synchronized, high-resolution odometry when integrating sensor fusion for real-time localization and mapping.
+
+Overall, the project provides a solid foundation for further enhancements. Future work will focus on optimizing the navigation parameters, improving odometry continuity, and refining SLAM performance to support long-term autonomous operation in dynamic environments.
 \end{document}
