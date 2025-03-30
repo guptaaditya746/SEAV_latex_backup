@@ -2,7 +2,7 @@
     \begin{abstract}
         This report details our work on creating a software framework for autonomous vehicles. We built a system that connects sensors, control units, and computing hardware using ROS 2. The system gathers data from LIDAR, IMU, and color sensors and then fuses this data into a real-time map of the environment. This map helps the vehicle know its position and plan safe paths. We designed the framework to run on small computers such as the Raspberry Pi 4 and Arduino Nano. We also set up communication protocols to ensure smooth data flow between the different parts of the system.
 
-        We tested our system in simulation using Gazebo and then on a real vehicle in a controlled setting. The report explains our approach to sensor fusion, vehicle control, and path planning. We used ros2control and PID controllers to manage the vehicle's speed and steering. Our tests show that the system can handle sensor errors and adjust to changes in the environment. This work lays a clear foundation for future improvements in autonomous vehicle technology and provides valuable insights into integrating software and hardware in real-world applications.
+        We tested our system in simulation using Gazebo and then on a real vehicle in a controlled setting. The report explains our approach to sensor fusion, vehicle control, and path planning. We used \texttt{ros2control} and PID controllers to manage the vehicle's speed and steering. Our tests show that the system can handle sensor errors and adjust to changes in the environment. This work lays a clear foundation for future improvements in autonomous vehicle technology and provides valuable insights into integrating software and hardware in real-world applications.
     \end{abstract}
 
     \tableofcontents
@@ -120,7 +120,7 @@ In this setup, the steering shaft is connected to a 40-tooth input gear, which m
 
 
 \subsection{Strip Spacing Calculation in Gear Mechanism}
-With the gear train, the disc’s full \( 360^\circ \) rotation was mapped to the amplified steering motion. The steering angle per stripe transition is calculated using the general formula:
+With the gear train, the disc full \( 360^\circ \) rotation was mapped to the amplified steering motion. The steering angle per stripe transition is calculated using the general formula:
 
 \[
 \theta_{\text{steering}} = \frac{360^\circ}{N} \times \frac{1}{\text{Gear Ratio}}
