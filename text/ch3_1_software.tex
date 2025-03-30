@@ -10,7 +10,7 @@ The dual-platform setup benefits highly from the consistent software environment
 \subsection{Middleware}
 \subsubsection{ROS 2 Humble and DDS Middleware}
 
-ROS 2 Humble Hawksbill serves as the middleware framework for orchestrating communication between the autonomous vehicle\textquotesingle s sensing, perception, planning, and control components. As a Long-Term Support (LTS) release, it offers enhanced real-time capabilities, improved reliability, robust security, and ongoing support making it well-suited for autonomous systems.
+ROS 2 Humble Hawksbill serves as the middleware framework for orchestrating communication between the autonomous vehicle\textquotesingle s sensing, perception, planning, and control components \cite{doi:10.1126/scirobotics.abm6074}. As a Long-Term Support (LTS) release, it offers enhanced real-time capabilities, improved reliability, robust security, and ongoing support making it well-suited for autonomous systems.
 
 A key advancement in ROS 2 is its integration with the Data Distribution Service (DDS) standard. DDS enables scalable, decentralized, and low-latency communication between distributed nodes, replacing the centralized publish-subscribe model used in ROS 1. It supports anonymous topic-based communication across multiple machines and allows fine-tuning through configurable Quality of Service (QoS) policies. These QoS settings help balance latency, reliability, and throughput, which is essential for prioritizing critical sensor and control messages in real-time autonomous operations.
 
@@ -24,23 +24,11 @@ A key advancement in ROS 2 is its integration with the Data Distribution Service
 
 
 \subsubsection{Nodes, Topics, Services, and Actions}
-ROS 2 uses a modular architecture composed of nodes, each encapsulating specific functionalities such as sensor processing, localization, and control. Nodes interact exclusively through clearly defined interfaces:
+ROS 2 uses a modular architecture composed of nodes, each encapsulating specific functionalities such as sensor processing, localization, and control \cite{doi:10.48550/arXiv.2305.09933}. Nodes interact exclusively through clearly defined interfaces:
 \begin{itemize}
-    \item Topics
-    \begin{itemize}
-        \item Provide asynchronous data communication channels ideal for continuous sensor data streams, such as LiDAR point clouds and odometry updates.
-    \end{itemize}
-
-    \item Services
-    \begin{itemize}
-        \item Enable synchronous request-response communication, useful for discrete commands or status checks like initiating sensor calibration.
-    \end{itemize}
-
-    \item Actions
-    \begin{itemize}
-        \item Support goal-oriented asynchronous tasks with feedback loops, beneficial for complex operations such as navigation or docking maneuvers.
-    \end{itemize}
-    
+    \item Topics: Provide asynchronous data communication channels ideal for continuous sensor data streams, such as LiDAR point clouds and odometry updates.
+    \item Services: Enable synchronous request-response communication, useful for discrete commands or status checks like initiating sensor calibration.
+    \item Actions: Support goal-oriented asynchronous tasks with feedback loops, beneficial for complex operations such as navigation or docking maneuvers.
 \end{itemize}
 
 \begin{figure}[h]
@@ -59,7 +47,7 @@ Simultaneous Localization and Mapping (SLAM) is a fundamental technique in auton
 
 
 \subsubsection{Implementation Using SLAM Toolbox}
-The ROS 2 SLAM Toolbox package is utilized to achieve robust 2D SLAM capabilities. SLAM Toolbox offers efficient real-time pose-graph SLAM functionality tailored specifically for ROS 2 Humble, including incremental and lifelong mapping, loop closure detection, and pose graph optimization. This toolbox was selected due to its active development, seamless integration with ROS 2, and proven real-world performance. Alternative approaches, such as Google Cartographer and GMapping, were considered but not pursued due to reduced support and incomplete ROS 2 compatibility.
+The ROS 2 SLAM Toolbox package is utilized to achieve robust 2D SLAM capabilities \cite{Macenski2021}. SLAM Toolbox offers efficient real-time pose-graph SLAM functionality tailored specifically for ROS 2 Humble, including incremental and lifelong mapping, loop closure detection, and pose graph optimization. This toolbox was selected due to its active development, seamless integration with ROS 2, and proven real-world performance. Alternative approaches, such as Google Cartographer and GMapping, were considered but not pursued due to reduced support and incomplete ROS 2 compatibility.
 
 \subsubsection{Pose Graph Mapping, Real-Time Updates, and Loop Closure}
 
@@ -79,7 +67,7 @@ Over time, localization drift may accumulate. To address this, SLAM Toolbox perf
 
 \subsection{Navigation and Path Planning}
 \subsubsection{Overview of the ROS 2 Navigation Stack}
-The ROS 2 Navigation Stack (Nav2) provides a robust, modular, and widely-adopted framework essential for autonomous navigation tasks. It integrates localization, global and local planning, obstacle avoidance, and recovery strategies into a cohesive architecture. Utilizing a behavior tree approach, Nav2 orchestrates these functionalities dynamically, offering flexibility and adaptability crucial for real-world autonomous vehicle operations.
+The ROS 2 Navigation Stack (Nav2) provides a robust, modular, and widely-adopted framework essential for autonomous navigation tasks. It integrates localization, global and local planning, obstacle avoidance, and recovery strategies into a cohesive architecture. Utilizing a behavior tree approach, Nav2 orchestrates these functionalities dynamically, offering flexibility and adaptability crucial for real-world autonomous vehicle operations\cite{MACENSKI2023104493}.
 
 \subsubsection{Localization from SLAM in ROS 2 Navigation Stack}
 The SLAM-generated occupancy grid map and localization data are directly integrated into the ROS 2 Navigation Stack (Nav2). SLAM Toolbox continuously updates the `map->odom` transform, providing real-time localization of the vehicle within the constructed map. 
@@ -87,10 +75,11 @@ The SLAM-generated occupancy grid map and localization data are directly integra
 This transform enables Nav2\textquotesingle s core components, including the global planner (`planner\_server`) and local controller (`controller\_server`), to operate with precise localization input. The AMCL (Adaptive Monte Carlo Localization) node, when used with an existing static map, further refines localization accuracy by processing sensor (`/scan`) data. 
 
 Nav2 leverages this accurate localization to:
+
 \begin{itemize}
     \item Perform global and local path planning based on updated map information.
-    \item Execute obstacle avoidance using costmaps (`global\_costmap`, `local\_costmap`).
-    \item Enable smooth motion control via `cmd\_vel` commands sent to the base controller.
+    \item Execute obstacle avoidance using costmaps (\texttt{global\_costmap}, \texttt{local\_costmap}).
+    \item Enable smooth motion control via \texttt{cmd\_vel} commands sent to the base controller.
 \end{itemize}
 
 Ensuring synchronization between SLAM and Nav2 is critical for reliable autonomous navigation. The bt\_navigator component in Nav2 orchestrates navigation actions (`NavigateToPose`, `FollowPath`), ensuring seamless integration between localization, planning, and control. 
@@ -132,10 +121,7 @@ Costmaps serve as the underlying representation of the navigational environment,
 Real-world autonomous navigation necessitates robust strategies to handle unforeseen environmental changes or navigational failures.
 
 \begin{itemize}
-    \item \textbf{Dynamic Replanning}: 
-    \begin{itemize}
-        \item Nav2 regularly updates the global path to adapt to new obstacles or environmental changes, typically on the order of seconds. This ensures the vehicle can continuously adjust its path in response to dynamic conditions without human intervention.
-    \end{itemize}
+    \item \textbf{Dynamic Replanning}:  Nav2 regularly updates the global path to adapt to new obstacles or environmental changes, typically on the order of seconds. This ensures the vehicle can continuously adjust its path in response to dynamic conditions without human intervention.
     
     \item \textbf{Recovery Behaviors}: Nav2 incorporates predefined recovery mechanisms activated through behavior trees when encountering navigational difficulties. Common recovery behaviors include:
     \begin{itemize}

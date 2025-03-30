@@ -51,7 +51,14 @@ To achieve accurate navigation and obstacle avoidance, sensor placement is optim
     \item LIDAR A1: Mounted at the rear for a stable 2D scan of the surroundings. The height is adjusted in order to prevent from any vision obstacle created by sensor installed on the car.
     \item IMU (MPU6050): Placed near the vehicle center to capture motion and orientation. The IMU sensor is oriented such that its $+x$ axis, marked on the device, is aligned parallel to the direction of the car's forward motion.
 
-    \item Color Sensors (TCS 34725): One sensor positioned near a rear wheel for speed or distance estimation, the other near the front for steering feedback. The placement of color sensor on the steering wheel involves more work, which is explained ..... %% add vinays content here.
+    \item Color Sensors (TCS 34725): One sensor positioned near a rear wheel for speed or distance estimation, the other near the front for steering feedback. The placement of color sensor on the steering wheel involves more work. Its included in the appendix \ref{chap:color_sensor}, for further information about the calculation and implementation. For now, we are not using color sensor for steering , problems are mention in he \ref{chap:color_sensor}. Morever, we are using the color sensor for measuring the steering wheel movement in which circle is dividing into 8 segments of black (each 40 degree) and 8 segments of white (each 5 degrees).The color sensor detects for the white color and each detection of white color measures to 8.125 cm for distance according to the circumference of the wheel of the car which is then used to calculate the odometery data.
+
+    \begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.6\textwidth]{img/implement/image.png}
+    \caption{Design of wheel installed in the rear wheel}
+    \label{fig:wiring_diagram}
+    \end{figure}
     \item Magnetometer: It is used as an alternative for the measurement of why do we need to change from color to magentometer for measurement of steering wheel. Enhances orientation data, improving localization accuracy, placed on the steering wheel, however due to vertical movement of steering rod , distance b/w magnet and sensor is changing which causes noise in the steering data . This issue is still in To-Do list, more of it in discussion related to measurement of steering angle.
 \end{itemize}
 
@@ -297,7 +304,12 @@ To simulate the autonomous vehicle, a URDF (Unified Robot Description Format) an
 \end{itemize}
 The URDF model was loaded into Gazebo using the \texttt{robot\_state\_publisher} to ensure that the TF (Transform) tree was correctly defined for navigation.
 
-%% include code snippet of xml
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.7\textwidth]{img/result/tf_tree.jpg}  % Replace with actual image
+    \caption{tf tree, show parent and child connection, used by ros transformation}
+    \label{fig:rviz2 snaphot, after publishing the /goal, path is suggested by Nav2}
+\end{figure}
 
 \subsubsection{Sensor Simulation}
 Simulating the vehicle\textquotesingle s sensors within Gazebo was crucial for testing navigation algorithms. The following sensors were simulated:

@@ -18,6 +18,7 @@
 
 \chapter{Technology Overview}
 \input{text/ch3_1_software}
+\newpage
 \input{text/ch3_2_hardware}
 
 \input{text/ch4_implementation}
@@ -26,15 +27,145 @@
 
 
 
-
 % Bibliography
 \printbibliography[heading=bibintoc]
 
 % Appendix
 \appendix
-\chapter{My First Appendix}
-This was just missing.
-\begin{minted}{python}
+% \chapter{My First Appendix}
+% This was just missing.
+% \begin{minted}{python}
 
    
-\end{minted}
+% \end{minted}
+
+
+\chapter{Implementation of a Color Sensor-Based Steering Angle Measurement System}\label{chap:color_sensor}
+\section{Introduction}
+In this project, a \textbf{TCS34725 color sensor} was utilized to determine the steering angle based on color stripe detection on a disc attached to the steering shaft.
+
+\section{Initial Approach: Directly Placing the Striped Disc on the Steering Shaft}
+Initially, a \textbf{striped disc} was directly mounted on the \textbf{steering shaft}, with the \textbf{TCS34725 color sensor} detecting color transitions as the shaft rotated. The objective was to measure the steering angle.The \textbf{TCS34725 sensor} detects the colored stripes on the disc and determines the direction and magnitude of rotation based on predefined color sequences:
+\begin{itemize}
+    \item \textbf{Right Turn:} \textbf{RGBRGB} sequence detected.
+    \item \textbf{Left Turn:} \textbf{BGRBGR} sequence detected.
+\end{itemize}
+
+\subsection{Stripes Used in Direct Disc Approach and Angle Per Stripe Calculation}
+To evaluate the effectiveness of different stripe densities (12, 15, and 24 stripes), multiple configurations were tested:
+\begin{itemize}
+   The steering angle per stripe transition is given by \( \theta = \frac{360^\circ}{N} \), where \( N \) is the number of stripes.
+
+
+% Insert diagrams here
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.3\textwidth]{img/appendix/disc_12_stripes.png}
+    \caption{Disc with 12 stripes (6 RGB, 6 BGR).}
+    \label{fig:disc_12}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.3\textwidth]{img/appendix/disc_15_stripes.png}
+    \caption{Disc with 15 stripes.}
+    \label{fig:disc_15}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.3\textwidth]{img/appendix/disc_24_stripes.png}
+    \caption{Disc with 24 stripes.}
+    \label{fig:disc_24}
+\end{figure}
+
+
+\end{itemize}
+
+\subsection{Limitations of Initial Stripe Detection}
+Initially, with 12 stripes (6 RGB, 6 BGR), the system could only determine left or right steering based on the initial color detection. If the sensor started at green, detecting red indicated a left turn, while detecting blue indicated a right turn. However, this approach lacked precise angular resolution, as it only provided binary feedback rather than incremental steering angles.
+
+To improve resolution, tests were conducted with 15 and 24 stripes. However, increasing the stripe count reduced individual stripe width, leading to detection failures. The sensor struggled to differentiate adjacent stripes due to color blending and its limited resolution. This made fine-grained angle measurement unreliable and inconsistent.
+
+
+
+
+
+\subsection{Solution: Using Lego Gears to Amplify Motion}
+To overcome these limitations, a \textbf{gear mechanism} was introduced to \textbf{amplify the rotation} of the steering shaft before transferring it to the striped disc. This \textbf{increased the effective angular displacement}, allowing the sensor to detect stripe transitions more effectively.
+
+
+
+\section{Required Calculations}
+
+\subsection{Gear Train Mechanism for Amplification}
+
+
+The gear ratio is calculated as:
+\[
+\text{Gear Ratio} = \frac{\text{Driven Gear Teeth}}{\text{Driving Gear Teeth}}
+\]
+
+\subsubsection{Gear Ratio 25:1 Configuration }
+In this setup, the steering shaft is connected to a 40-tooth input gear, which meshes with an 8-tooth intermediate gear. This intermediate gear shares its shaft with a second intermediate gear, also having 40 teeth. The second intermediate gear is meshed with the final output gear, which has 8 teeth and is mounted on the striped disc. The total gear ratio for this setup is:
+\[
+\frac{40}{8} \times \frac{40}{8} = 5 \times 5 = 25:1
+\]
+
+\subsubsection{Gear Ratio 8.33:1 Configuration (Using 24-Tooth Driven Gear)}
+
+\[
+\frac{40}{8} \times \frac{40}{24} = 5 \times 1.67 = 8.33:1
+\]
+
+
+\subsection{Strip Spacing Calculation in Gear Mechanism}
+With the gear train, the disc’s full \( 360^\circ \) rotation was mapped to the amplified steering motion. The steering angle per stripe transition is calculated using the general formula:
+
+\[
+\theta_{\text{steering}} = \frac{360^\circ}{N} \times \frac{1}{\text{Gear Ratio}}
+\]
+
+where \( N \) is the number of stripes on the disc, and the gear ratio determines the amplification factor. This formula demonstrates how increasing stripe count and applying different gear ratios influence the final steering movement per detected transition.
+
+
+\begin{table}[h]
+    \centering
+    \caption{Strip Spacing Calculation for Different Gear Ratios}
+    \begin{tabular}{lccc}
+        \toprule
+        Stripes & Transition per Stripe (\(^\circ\)) & Steering Angle After 25:1 (\(^\circ\)) & Steering Angle After 8.33:1 (\(^\circ\)) \\
+        \midrule
+        12      & 30\(^\circ\)                      & 1.2\(^\circ\)                         & 3.6\(^\circ\)                         \\
+        15      & 24\(^\circ\)                      & 0.96\(^\circ\)                        & 2.88\(^\circ\)                        \\
+        24      & 15\(^\circ\)                      & 0.6\(^\circ\)                         & 1.8\(^\circ\)                         \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+
+
+\subsection{Challenges and Difficulties Faced}
+Despite implementing the gear mechanism to amplify the rotation and improve stripe detection, several challenges persisted:
+\begin{itemize}
+    \item \textbf{Disc Stability Issues:}
+    \begin{itemize}
+        \item If the disc which is made of cardboard sheet was tightly connected to the driven shaft, it experienced excessive \textbf{recoil after the gear stopped rotating}, causing unintended stripe transitions.
+        \item If the disc was not connected tightly, it \textbf{did not rotate as much as expected}, leading to incorrect tick counts and inconsistent steering angle readings.
+    
+        \item \textbf{Weight Considerations:} When a printed disc was used for more durability, it was \textbf{too heavy for the Lego gears}, leading to additional instability and erratic movement.
+    \end{itemize}
+   
+    \item \textbf{Precision Issues in Color Sensing:}
+    \begin{itemize}
+        \item The \textbf{TCS34725 sensor} had a \textbf{small sensing area}, requiring the \textbf{stripes to be perfectly aligned} for accurate detection.
+        \item Variations in lighting conditions and sensor positioning also \textbf{caused fluctuations in color readings}, leading to occasional false detections.
+    \end{itemize}
+    
+\end{itemize}
+
+
+\section{Conclusion: Transition to a Magnetic Sensor}
+Due to \textbf{significant stability challenges} with the color-coded disc system, a decision was made to transition to a \textbf{magnetic sensor (AS5600)} for measuring steering angles. Assuming that the magnetic sensor provides higher accuracy without reliance on visual transitions, better durability unaffected by mechanical instability, and simpler integration without the need for extensive gear train modifications.
+
+
