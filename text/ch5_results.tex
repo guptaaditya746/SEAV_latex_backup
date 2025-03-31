@@ -64,6 +64,42 @@ SLAM was successfully implemented using IMU and LIDAR in a simulated environment
     \label{fig:slam map generated before imu calibration}
 \end{figure}
 
+%%%%%%%%%%%%%%%
+\subsection{Waypoint Follower Implementation}
+
+To test autonomous movement without relying on the full ROS 2 Navigation Stack or SLAM-based localization, a custom waypoint follower node was developed. This minimalist solution allows us to focus on core control logic and system integration, serving as both a fallback control method and a learning tool for autonomous motion.
+
+The waypoint follower node subscribes to the \texttt{/odom} topic to obtain the robots current pose and iteratively commands it toward a sequence of predefined 2D waypoints. For each target, the node calculates both the linear distance and the heading (angular) error between the robot’s current orientation and the direction to the waypoint.
+
+The control logic operates in a fixed-rate loop (e.g., 10 Hz) and performs the following actions:
+\begin{itemize}
+    \item Reads the latest odometry-based pose.
+    \item Computes the distance and angle to the current waypoint.
+    \item Normalizes the heading error using angle wrapping.
+    \item If the robot is aligned and far from the waypoint, it moves forward.
+    \item If misaligned, it rotates in place using proportional control on angular velocity.
+    \item Upon reaching the waypoint, it halts and switches to the next.
+\end{itemize}
+
+Only the proportional component of a PID controller is used for angular correction. Specifically, the angular velocity is calculated as:
+\[
+\omega = K_p \cdot \theta_{\text{error}}
+\]
+This provides sufficient responsiveness for basic tasks without introducing the complexity of integral or derivative tuning.
+
+Velocities are published to the \texttt{/cmd\_vel} topic. The serial motor controller node interprets these values and sends corresponding commands such as \texttt{FORWARD}, \texttt{LEFT}, or \texttt{STOP} to the Arduino over UART.
+
+For evaluation, a simple back-and-forth test scenario was defined using two waypoints placed 0.3 meters apart. Once the robot reaches the endpoint, it reverses direction and returns to the starting point, repeating this loop indefinitely.
+
+\bigskip
+\noindent
+% \textbf{Project Status:} \textit{In Progress — Odometry Fix Required}
+% \begin{figure}[h!]
+%     \centering
+%     \includegraphics[width=0.9\textwidth]{img/result/flowchart.png}
+%     \caption{System Architecture Flowchart for Waypoint Following Robot (created using Mermaid)}
+%     \label{fig:flowchart}
+% \end{figure}
 \subsection{Path Planning and Navigation}
 
 The goal-setting and navigation functionality using Nav2 was successfully tested with mock maps. The system could generate feasible paths for the robot to navigate from a starting point to a destination. Further testing with real sensor data and dynamic environments is required to refine the system\textquotesingle s performance.

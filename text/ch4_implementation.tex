@@ -280,13 +280,88 @@ Nav2 (Navigation 2) is configured to handle both global and local path planning.
     \caption{Nav2 Autonomous Decision-Making Flow}
     \label{fig:system_architecture}
 \end{figure}
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Controller}
 
+In our autonomous vehicle project, the controller subsystem is responsible for converting high-level motion commands into low-level steering and drive signals. Our robot follows an Ackermann steering geometry, and to simulate and control this behavior within Gazebo, we employ the \texttt{gazebo\_ros\_ackermann\_drive} plugin. This plugin encapsulates both linear velocity and steering control using internal PID loops, providing a tunable and physically realistic simulation of car-like motion.
 
-\subsubsection{ros2 control}
+Ackermann steering enables the inner and outer front wheels to rotate at different angles during a turn so that all wheels trace concentric arcs. This reduces wheel slippage and provides smoother, more efficient maneuvering crucial for ground vehicles with front-wheel steering. While in real-world vehicles this is achieved mechanically through linkages, in simulation we replicate this using joint-level control and plugins.
 
-\subsubsection{PID Controller}
+The \texttt{gazebo\_ros\_ackermann\_drive} plugin internally uses PID controllers to track the target steering angles and linear velocity. The following PID gains were defined in the URDF:
+
+\begin{verbatim}
+<left_steering_pid_gain>1500 0 1</left_steering_pid_gain>
+<right_steering_pid_gain>1500 0 1</right_steering_pid_gain>
+<linear_velocity_pid_gain>1500 0 1</linear_velocity_pid_gain>
+\end{verbatim}
+
+These represent Proportional (P), Integral (I), and Derivative (D) gains, respectively. A high proportional gain of 1500 ensures quick response to control errors, while a small derivative gain introduces damping to prevent oscillations. The integral term is set to zero to avoid slow drift corrections, which can cause overshoot or instability in tightly timed control loops.
+
+\textbf{Steering Control:} The plugin computes target steering angles based on \texttt{cmd\_vel.angular.z} and applies PID control to individual front wheel joints.
+
+\textbf{Velocity Control:} Commands from \texttt{cmd\_vel.linear.x} are converted to rear wheel drive velocity. The plugin compares actual and target velocities, adjusting output via PID to maintain consistent forward motion.
+
+To provide realistic joint feedback and enable visualization in RViz, we include the \texttt{gazebo\_ros\_joint\_state\_publisher} plugin, which broadcasts joint states at 100 Hz, including:
+
+\begin{itemize}
+    \item \textbf{Steering Joints:} \texttt{fr\_left\_steer\_joint}, \texttt{fr\_right\_steer\_joint}
+    \item \textbf{Drive Joints:} All four wheel joints
+    \item \textbf{Virtual Steering Wheel Joint:} For visualization only
+\end{itemize}
+
+\subsubsection{Real Robot Control Pipeline}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{img/implement/flowchart_full_control.png}
+\caption{Full Control Flow – Simulation and Real Robot Integration. This diagram shows the pipeline from high level ROS2 commands down to hardware execution or Gazebo simulation.}
+\label{fig:full_control}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{img/implement/ros2_control_vs_custom.png}
+\caption{Comparison between \texttt{ros2\_control} Architecture and Our Custom Control Implementation. The left shows the modular \texttt{ros2\_control} stack, while the right shows our direct serial-to-Arduino approach.}
+\label{fig:ros2_control_comparison}
+\end{figure}
+
+In simulation, the plugin also publishes odometry data and the TF transform between \texttt{odom} and \texttt{base\_footprint}, enabling seamless integration with the localization and navigation stack:
+
+\begin{itemize}
+    \item \textbf{Odometry Topic:} \texttt{/odom/bot}
+    \item \textbf{TF Frame:} \texttt{odom} $\rightarrow$ \texttt{base\_footprint}
+    \item \textbf{Optional Sensor Fusion:} Distance tracked using \texttt{/distance/bot}
+\end{itemize}
+
+On the real robot, we implemented a custom control pipeline to mimic this architecture. High-level velocity commands from Nav2 are published to the \texttt{/cmd\_vel} topic. A custom ROS 2 node, \texttt{serial\_motor\_controller.py}, listens to this topic and translates the messages into serial strings sent to an Arduino Nano.
+
+The Arduino firmware parses these commands:
+\texttt{FORWARD}, \texttt{BACKWARD}, \texttt{LEFT}, \texttt{RIGHT}, \texttt{SPEED <val>}, and \texttt{STOP}. The rear wheels are controlled via PWM through a motor driver, while the steering angle is adjusted using digital outputs. An Adafruit TCS34725 color sensor-based odometry system estimates displacement by tracking white and black strip transitions beneath the robot.
+
+This setup provides a custom but ROS-compliant control loop, allowing for straightforward testing and debugging while preserving modularity. However, it lacks many benefits of \texttt{ros2\_control}, such as:
+
+\begin{itemize}
+    \item Standardized interfaces for hardware
+    \item Hot-swappable controller plugins
+    \item Real-time safety and control guarantees
+\end{itemize}
+
+\texttt{ros2\_control} is structured around a layered model:
+
+\begin{itemize}
+    \item \textbf{Hardware Interface (SystemInterface):} Implements low-level methods like \texttt{read()}, \texttt{write()}, and \texttt{on\_init()} to interact with hardware or simulations.
+    \item \textbf{Controller Manager:} Manages controller lifecycles, periodically calls the interfaces, and publishes real-time states.
+    \item \textbf{Controllers:} Modular plugins like \texttt{diff\_drive\_controller}, \texttt{bicycle\_steering\_controller}, and trajectory interfaces for high-level command conversion.
+\end{itemize}
+
+While our current implementation offers flexibility during prototyping, transitioning to a full \texttt{ros2\_control} stack would bring scalability, modularity, and improved maintainability especially for more complex vehicles, hardware abstraction layers, or when real time control performance becomes critical.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
 
 \subsection{System Integration and Testing}
 The system was integrated and tested in a controlled environment. The following steps were followed:
