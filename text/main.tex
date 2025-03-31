@@ -169,3 +169,85 @@ Despite implementing the gear mechanism to amplify the rotation and improve stri
 Due to \textbf{significant stability challenges} with the color-coded disc system, a decision was made to transition to a \textbf{magnetic sensor (AS5600)} for measuring steering angles. Assuming that the magnetic sensor provides higher accuracy without reliance on visual transitions, better durability unaffected by mechanical instability, and simpler integration without the need for extensive gear train modifications.
 
 
+
+\chapter{Magnetic Encoder-Based Steering Feedback System}
+
+Following instability and imprecision observed with the earlier color sensor-based steering setup, the steering angle measurement system was redesigned using the AS5600 magnetic rotary encoder. This upgrade aims to provide more reliable, higher-resolution angular feedback, eliminating limitations caused by visual sensing, light conditions, and mechanical gear amplification.
+
+\section{Motivation for Transition}
+
+The color-sensor-based approach, although simple and inexpensive, introduced noise and inconsistencies during real-time steering feedback due to ambient light interference and the discrete nature of color-strip detection. Moreover, mechanical looseness and drift further reduced accuracy. To overcome these challenges, a contactless, magnetic solution using the AS5600 sensor was adopted.
+
+\section{Overview of the AS5600 Magnetic Encoder}
+
+The AS5600 is a 12-bit contactless rotary position sensor capable of detecting angular changes of a diametrically magnetized disc magnet placed above its sensing plane. It operates based on the Hall effect and provides absolute angular readings ranging from 0° to 360°. Its compact size, digital I\textsuperscript{2}C interface, and reliability make it well-suited for embedded robotic applications, particularly in steering angle measurement.
+
+\section{System Integration and Setup}
+
+In the implemented setup:
+\begin{itemize}
+    \item A neodymium disc magnet is rigidly attached to the rotating steering shaft.
+    \item The AS5600 sensor is mounted coaxially above the magnet, with its sensing surface facing the magnet.
+    \item The sensor communicates with the microcontroller (Arduino Nano or similar) over the I\textsuperscript{2}C bus, providing continuous angle readings.
+\end{itemize}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.6\textwidth]{img/result/sensor-magnet-setup.jpg}
+    \caption{AS5600 sensor alignment with rotating magnet on the steering shaft.}
+    \label{fig:sensor-magnet-setup}
+\end{figure}
+
+\section{Sensor-to-Magnet Distance Constraints}
+
+One of the critical design constraints for reliable AS5600 operation is maintaining a precise distance between the sensor and the magnet.
+
+\subsection{Optimal Operating Range}
+
+According to datasheet specifications:
+\begin{itemize}
+    \item Optimal sensing occurs between 0.5\,mm and 2.0\,mm.
+    \item Distances below 0.5\,mm may lead to magnetic saturation or physical contact.
+    \item Distances above 2.0\,mm may degrade field strength, leading to incorrect or missing angle readings.
+\end{itemize}
+
+\subsection{Magnetic Field Strength vs. Distance}
+
+Magnetic field strength from a dipole magnet decreases non-linearly with distance. While not following the inverse-square law exactly, even slight vertical displacement significantly reduces the sensor’s ability to track the field vector. This relationship impacts measurement accuracy as shown below:
+
+\begin{itemize}
+    \item Increased gap $\rightarrow$ weaker field $\rightarrow$ noisy data
+    \item Decreased gap $\rightarrow$ stronger field but risk of saturation or interference
+\end{itemize}
+
+\section{Issues Encountered in the Current Setup}
+
+During physical testing, the following issues were observed due to mechanical imperfections:
+\begin{itemize}
+    \item The steering shaft has vertical play, causing dynamic variation in the sensor-to-magnet gap.
+    \item This leads to inconsistent field strength at the sensor surface.
+    \item The result is non-linear angle jumps and noise in feedback data.
+    \item Sensor dropout and invalid angle readings occur more frequently under motion.
+\end{itemize}
+
+\section{Observed Feedback Behavior}
+
+When mounted properly with minimal shaft play, the AS5600 produces smooth, high-resolution angle data suitable for closed-loop control. However, in the current system, the mechanical instability introduces:
+\begin{itemize}
+    \item Irregular step changes in angle
+    \item Increased measurement variance
+    \item Feedback delays and missed updates
+\end{itemize}
+
+These problems directly affect steering accuracy, particularly during fine adjustments or waypoint tracking.
+
+\section{Conclusion and Recommendations}
+
+Adopting the AS5600 magnetic encoder offers a significant improvement in precision, compactness, and robustness over traditional color sensor systems for steering angle detection. However, the quality of its output is tightly coupled to mechanical integrity. To fully realize its benefits:
+\begin{itemize}
+    \item The vertical shaft movement must be minimized using bearings or stiff supports.
+    \item The sensor should be mounted with a fixed, calibrated distance to the magnet.
+    \item Magnetic alignment and centering should be verified to avoid angular offset errors.
+\end{itemize}
+
+This chapter highlights the importance of both sensor selection and mechanical reliability in feedback systems and forms a crucial step toward achieving stable and accurate steering control in autonomous vehicles.

@@ -67,7 +67,7 @@ Over time, localization drift may accumulate. To address this, SLAM Toolbox perf
 
 \subsection{Navigation and Path Planning}
 \subsubsection{Overview of the ROS 2 Navigation Stack}
-The ROS 2 Navigation Stack (Nav2) provides a robust, modular, and widely-adopted framework essential for autonomous navigation tasks. It integrates localization, global and local planning, obstacle avoidance, and recovery strategies into a cohesive architecture. Utilizing a behavior tree approach, Nav2 orchestrates these functionalities dynamically, offering flexibility and adaptability crucial for real-world autonomous vehicle operations\cite{MACENSKI2023104493}.
+The ROS 2 Navigation Stack (Nav2) provides a robust, modular, and widely-adopted framework essential for autonomous navigation tasks. It integrates localization, global and local planning, obstacle avoidance, and recovery strategies into a cohesive architecture. Utilizing a behavior tree approach, Nav2 orchestrates these functionalities dynamically, offering flexibility and adaptability crucial for real-world autonomous vehicle operations\cite{macenski2022nav2}.
 
 \subsubsection{Localization from SLAM in ROS 2 Navigation Stack}
 The SLAM-generated occupancy grid map and localization data are directly integrated into the ROS 2 Navigation Stack (Nav2). SLAM Toolbox continuously updates the `map->odom` transform, providing real-time localization of the vehicle within the constructed map. 

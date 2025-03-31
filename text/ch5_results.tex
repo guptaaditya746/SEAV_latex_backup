@@ -152,7 +152,7 @@ To ensure accurate sensor measurements and system responses, a comprehensive cal
     \item LIDAR Calibration: After calibration, distance measurement error was reduced to $\pm 2 \text{cm}$.
     \item IMU Calibration: Bias correction significantly improved orientation estimation.
     \subsubsection{IMU Calibration}
-Accurate IMU calibration is essential for improving orientation estimation and reducing sensor drift. The calibration was performed using the Ferraris calibration method, as described in \cite{imucal-ferraris-guide}, with the `imucal` Python library \cite{kuderle2022}.
+Accurate IMU calibration is essential for improving orientation estimation and reducing sensor drift. The calibration was performed using the Ferraris calibration method, as described in \cite{imucal-ferraris-guide}, with the imucal Python library \cite{kuderle2022}.
 
 \paragraph{Calibration Procedure}
 The Ferraris calibration process involves collecting IMU measurements while performing controlled multi-axis rotations. This allows for accurate estimation of:
@@ -162,7 +162,7 @@ The Ferraris calibration process involves collecting IMU measurements while perf
     \item Soft-iron and hard-iron magnetometer distortions (if applicable).
 \end{itemize}
 
-The raw IMU data was logged during the calibration procedure and then processed using `imucal`. The calibration parameters were estimated and applied to the sensor data to correct systematic errors.
+The raw IMU data was logged during the calibration procedure and then processed using imucal. The calibration parameters were estimated and applied to the sensor data to correct systematic errors.
 
 \paragraph{Results and Improvements}
 After applying the calibration parameters, the following improvements were observed:
